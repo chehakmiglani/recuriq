@@ -1,0 +1,660 @@
+/* Billing Page Styles */
+
+.billing-page {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+}
+
+/* Loading State */
+.billing-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #d1d5db;
+  border-top-color: #5b4fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  color: #6b7280;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+}
+
+/* Billing Summary */
+.billing-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.summary-card:hover {
+  border-color: #5b4fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(91, 79, 255, 0.15);
+}
+
+.summary-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.summary-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.summary-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Coupon Section */
+.coupon-section {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.coupon-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.coupon-icon {
+  color: #5b4fff;
+}
+
+.coupon-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.coupon-form {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.coupon-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #1f2937;
+  background-color: #ffffff;
+}
+
+.coupon-input:focus {
+  outline: none;
+  border-color: #5b4fff;
+  box-shadow: 0 0 0 3px rgba(91, 79, 255, 0.1);
+}
+
+.btn-coupon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background-color: #5b4fff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-coupon:hover {
+  background-color: #6b5fff;
+  transform: translateY(-1px);
+}
+
+.coupon-applied {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #E8F5E9;
+  border: 1px solid #22c55e;
+  border-radius: 8px;
+  color: #166534;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+}
+
+.coupon-applied svg {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+/* Tabs */
+.billing-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #6b7280;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: -1px;
+}
+
+.tab:hover {
+  color: #1f2937;
+  background-color: #f3f4f6;
+}
+
+.tab.active {
+  color: #5b4fff;
+  border-bottom-color: #5b4fff;
+  background-color: rgba(91, 79, 255, 0.05);
+}
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 0.5rem;
+  background-color: #f3f4f6;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tab.active .tab-count {
+  background-color: #5b4fff;
+  color: white;
+}
+
+/* Tab Content */
+.tab-content {
+  min-height: 300px;
+}
+
+/* Invoices List */
+.invoices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.invoice-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.invoice-card:hover {
+  border-color: #5b4fff;
+  box-shadow: 0 4px 12px rgba(91, 79, 255, 0.15);
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.invoice-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.invoice-number {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+}
+
+.invoice-date {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.due-date {
+  color: #5b4fff;
+  margin-left: 0.5rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.invoice-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.invoice-amount {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background-color: transparent;
+  color: #5b4fff;
+  border: 1px solid #5b4fff;
+  border-radius: 8px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-download:hover {
+  background-color: #5b4fff;
+  color: white;
+}
+
+/* Payments List */
+.payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.payment-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.payment-card:hover {
+  border-color: #22c55e;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+}
+
+.payment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.payment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.payment-id {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+}
+
+.payment-invoice {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.payment-date {
+  color: #9ca3af;
+  margin: 0;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.payment-amount {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Credit Notes List */
+.credit-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.credit-note-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.credit-note-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.credit-note-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.credit-note-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.credit-note-number {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+}
+
+.credit-note-invoice {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.credit-note-date {
+  color: #9ca3af;
+  margin: 0;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.credit-note-amount {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #3b82f6;
+  margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #ffffff;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+}
+
+.empty-icon {
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  color: #1f2937;
+  font-weight: 500;
+  margin: 0 0 0.5rem 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+}
+
+.empty-hint {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.summary-card,
+.invoice-card,
+.payment-card,
+.credit-note-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .billing-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .coupon-form {
+    flex-direction: column;
+  }
+  
+  .billing-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .tab {
+    white-space: nowrap;
+  }
+  
+  .invoice-header,
+  .payment-card,
+  .credit-note-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .invoice-footer {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  .summary-value {
+    font-size: 1.25rem;
+  }
+  
+  .coupon-section {
+    padding: 1rem;
+  }
+  
+  .invoice-card,
+  .payment-card,
+  .credit-note-card {
+    padding: 1rem;
+  }
+}
+
+/* Accessibility */
+*:focus-visible {
+  outline: 2px solid #5b4fff;
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .summary-card,
+  .invoice-card,
+  .payment-card,
+  .credit-note-card {
+    animation: none;
+    transition: none;
+  }
+  
+  .summary-card:hover,
+  .invoice-card:hover,
+  .payment-card:hover,
+  .credit-note-card:hover {
+    transform: none;
+  }
+}
+
+/* High Contrast */
+@media (prefers-contrast: high) {
+  .summary-card,
+  .invoice-card,
+  .payment-card,
+  .credit-note-card,
+  .coupon-section {
+    border-width: 2px;
+  }
+  
+  .btn-coupon,
+  .btn-download {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Print */
+@media print {
+  .billing-tabs,
+  .coupon-section,
+  .btn-download {
+    display: none !important;
+  }
+  
+  .invoice-card,
+  .payment-card,
+  .credit-note-card {
+    break-inside: avoid;
+    border: 1px solid #000;
+  }
+}

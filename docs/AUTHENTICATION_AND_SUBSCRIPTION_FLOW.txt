@@ -1,0 +1,283 @@
+================================================================================
+STREAMFLIX CUSTOMER AUTHENTICATION & SUBSCRIPTION FLOW SYSTEM REFERENCE MANUAL
+================================================================================
+
+This document provides a highly detailed, file-by-file, and method-by-method 
+technical breakdown of the Customer Authentication and Subscription Billing 
+flows across the backend (Spring Boot 3.4.5) and the frontend (React 19 + Vite).
+
+--------------------------------------------------------------------------------
+PART 1: CUSTOMER AUTHENTICATION ARCHITECTURE (END-TO-END)
+--------------------------------------------------------------------------------
+
+The authentication subsystem is stateful, utilizing standard HTTP Session cookies 
+combined with Spring Security authentication filters to track authenticated profiles, 
+roles, and authorizations across requests.
+
+================================================================================
+A. BACKEND AUTHENTICATION COMPONENTS
+================================================================================
+
+1. SecurityConfig.java
+-----------------------------------------
+This class defines the Spring Security Filter Chain, password encoding mechanisms, 
+CORS rules, and secure path boundaries.
+
+* LIBRARIES USED:
+  - org.springframework.security.config.annotation.web.builders.HttpSecurity
+  - org.springframework.security.web.SecurityFilterChain
+  - org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+  - org.springframework.security.authentication.dao.DaoAuthenticationProvider
+  - org.springframework.web.cors.CorsConfigurationSource
+
+* METHODS DEFINED:
+  a. securityFilterChain(HttpSecurity http)
+     - Input: HttpSecurity builder context.
+     - Output: SecurityFilterChain instance.
+     - Logic: 
+       * Disables CSRF (cross-site request forgery) since local session headers 
+         and API proxies secure endpoints.
+       * Enables CORS using a custom configuration source to allow trusted origins.
+       * Configures path patterns:
+         - /api/customer/login, /api/customer/register, and /api/customer/plans/* 
+           are set to permitAll().
+         - /api/** requires authenticated().
+       * Configures Custom Exception handling to intercept unauthorized requests, 
+         returning a JSON format "{"error": "Unauthorized"}" response with HTTP 401 
+         status instead of standard browser popups.
+       * Sets Session policy: SessionCreationPolicy.IF_REQUIRED.
+       * Prevents Session Fixation Attacks: sessionFixation().migrateSession(), 
+         which copies attributes to a new Servlet Session whenever a login executes.
+  b. passwordEncoder()
+     - Output: BCryptPasswordEncoder.
+     - Logic: Provides a dynamically-salted BCrypt password hashing mechanism 
+       using 10 work rounds to encode and verify passwords.
+  c. corsConfigurationSource()
+     - Output: CorsConfigurationSource.
+     - Logic: Permits requests from "http://localhost:3000" and "http://127.0.0.1:3000". 
+       Exposes standard headers ("Authorization", "Content-Type") and sets 
+       allowCredentials(true) to permit secure cookie transmissions.
+
+2. AuthController.java
+-----------------------------------------
+Exposes REST endpoints for client registrations, logins, and logouts.
+
+* METHODS DEFINED:
+  a. registerCustomer(@Valid @RequestBody RegisterRequest request)
+     - Input: RegisterRequest (contains Email, Password, FullName).
+     - Output: ResponseEntity<UserDTO>.
+     - Logic: Calls authService.registerCustomer() to persist the account.
+  b. loginCustomer(@RequestBody LoginRequest request, HttpServletRequest req, HttpServletResponse res)
+     - Input: LoginRequest (Email, Password).
+     - Output: ResponseEntity<UserDTO>.
+     - Logic: Authenticators authenticate credentials via Spring AuthenticationManager, 
+       binds authentication to the SecurityContext, and creates a session cookie.
+  c. getMe()
+     - Output: ResponseEntity<UserDTO>.
+     - Logic: Recovers the authenticated user context from SecurityContextHolder, 
+       returning the current logged-in profile.
+
+3. AuthService.java & AuthServiceImpl.java
+-----------------------------------------
+Handles registration, credential mapping, and database-level profile binding.
+
+* METHODS DEFINED:
+  a. registerCustomer(RegisterRequest request)
+     - Input: RegisterRequest.
+     - Output: UserDTO.
+     - Logic: 
+       * Checks if the email is already registered in UserRepository.
+       * Hashes password using BCrypt.
+       * Saves a new User entity (with UserRole.ROLE_CUSTOMER).
+       * Saves a corresponding Customer profile entity with currency defaults.
+  b. authenticateUser(String email, String password)
+     - Input: String email, String password.
+     - Output: Authentication context.
+     - Logic: Performs authentication checks via the authenticationManager.
+
+================================================================================
+B. FRONTEND AUTHENTICATION COMPONENTS
+================================================================================
+
+1. AuthContext.tsx
+-----------------------------------------
+The global React state manager holding session parameters and current user details.
+
+* LOGICAL FLOW:
+  - On application mount, it runs useEffect() executing fetchMe().
+  - If fetchMe() succeeds (HTTP 200), it updates state: user = fetchedProfile, 
+    authenticated = true, loading = false.
+  - If fetchMe() fails (HTTP 401), it sets: user = null, authenticated = false, 
+    loading = false.
+  - Exposes login() and logout() hooks to child components.
+
+2. CustomerAuthPage.tsx
+-----------------------------------------
+The UI entry point for user sign-in and registration.
+
+* LOGICAL FLOW:
+  - Holds states for login vs registration views, inputs (email, password, name), 
+    and form errors.
+  - Executes login(email, password) which posts credentials to /api/customer/login.
+  - On successful login, the application state is refreshed, and the user is 
+    redirected to the dashboard.
+
+3. RoleGuard.tsx
+-----------------------------------------
+Protects routes on the frontend based on user roles.
+
+* LOGICAL FLOW:
+  - Wraps routes (such as /admin/** or /dashboard/**).
+  - Inspects user.role from AuthContext.
+  - If unauthorized, redirects customers attempting to access admin areas to 
+    the login screen.
+
+--------------------------------------------------------------------------------
+PART 2: SUBSCRIPTION CHECKOUT & UPGRADE SYSTEM (WITH ADD-ONS, TAX & COUPONS)
+--------------------------------------------------------------------------------
+
+StreamFlix handles real-time trial conversions, mid-period proration calculations, 
+18% GST tax, and discount coupons (fixed and percentage).
+
+================================================================================
+A. BACKEND SUBSCRIPTION & BILLING SERVICES
+================================================================================
+
+1. CustomerSubscriptionServiceImpl.java
+-----------------------------------------
+Core subscription lifecycle manager. Handles subscription upgrades/downgrades, 
+pause/resume actions, and proration calculations.
+
+* METHODS DEFINED:
+  a. upgradeSubscription(String email, UpgradeSubscriptionRequest request)
+     - Input: String email, UpgradeSubscriptionRequest (contains PlanId).
+     - Output: SubscriptionDTO.
+     - Logic:
+       * Locates the active Customer and active Subscription.
+       * If the user is currently TRIALING:
+         - Computes trial days used: daysUsed = Today - SubscriptionStartDate.
+         - Subtracts used days from the new plan's trial days: 
+           newTrialDays = Max(0, NewPlanTrialDays - daysUsed).
+         - Updates subscription's plan, trialEndDate, and status to ACTIVE if 
+           newTrialDays is 0.
+         - Updates any OPEN trial invoice by deleting old line items, 
+           adding the new plan line, active addons, subtracting coupons, and 
+           applying 18% GST tax.
+       * If the user is ACTIVE (not trialing):
+         - Calculates remaining days in the old cycle: 
+           remainingDays = PeriodEndDate - Today.
+         - Calculates unused refund credit: 
+           unusedCredit = OldPaidTotal * (remainingDays / TotalPeriodDays).
+         - Calculates new plan's full cost: 
+           newTotalCost = NewPlanSubtotal + 18% GST.
+         - Subtracts unused credit from the new plan cost: 
+           prorationAmount = Max(0, newTotalCost - unusedCredit).
+         - Creates an immediate PAID invoice detailing these calculations, 
+           along with a Payment transaction record for any positive proration amount.
+         - Resets the subscription billing period to start today (e.g. 1 year/month).
+
+2. SubscriptionFlowServiceImpl.java
+-----------------------------------------
+Manages the multi-step customer registration checkout pipeline.
+
+* METHODS DEFINED:
+  a. completeSubscriptionCheckout(String email, CheckoutRequest request)
+     - Input: String email, CheckoutRequest (planId, paymentMethod, couponCode, addons).
+     - Output: CheckoutResponse.
+     - Logic:
+       * Verifies payment cards and registers them as the default payment source.
+       * Configures a core Subscription entity with Status.TRIALING (if plan includes 
+         trial days) or Status.ACTIVE.
+       * Computes subtotal: PlanPrice + AddonPrices - CouponDiscount.
+       * Calculates 18% GST.
+       * Generates an invoice:
+         - Marked as OPEN with due date equal to trialEndDate (if in trial).
+         - Marked as PAID (if trial duration is 0, executing transaction charge).
+       * Saves subscription line items in SubscriptionItemRepository.
+
+3. CustomerBillingServiceImpl.java
+-----------------------------------------
+Handles invoice ledger retrievals, coupon applications, and PDF generations.
+
+* METHODS DEFINED:
+  a. calculateInvoiceTotals(Subscription sub, Coupon coupon, List<AddOn> addons)
+     - Input: Subscription, Coupon, List<AddOn>.
+     - Output: Calculated invoice totals (subtotal, discount, tax, total).
+     - Logic: Calculates plan prices + addons, subtracts percentage/fixed 
+       discounts, and calculates 18% GST on the subtotal.
+  b. generateInvoicePdf(Long invoiceId)
+     - Input: InvoiceId.
+     - Output: byte[] (PDF stream).
+     - Logic: Generates a printable receipt containing transaction summaries, 
+       tax details, and billing coordinates.
+
+================================================================================
+B. FRONTEND SUBSCRIPTION COMPONENTS & INTERFACE
+================================================================================
+
+1. SubscriptionCheckoutPage.tsx
+-----------------------------------------
+A multi-step purchase checkout wizard for new subscriptions.
+
+* STEP-BY-STEP OPERATION:
+  - Step 1: Billing Address Profile Setup. Captures physical address and maps 
+    preferred billing currency (INR, USD).
+  - Step 2: Payment Details Setup. Tokenizes credit cards or UPI accounts, and 
+    saves payment credentials to the backend database.
+  - Step 3: Subscription Summary Review.
+    - Retrieves plan details, fetches attached add-ons, and applies coupons.
+    - Displays real-time price breakdowns:
+      * Base plan price.
+      * Active add-on costs.
+      * Coupon discount deductions.
+      * 18% GST calculations.
+      * Total net amount.
+  - On confirmation, executes completeSubscriptionCheckout() to register 
+    the active subscription.
+
+2. SubscriptionPage.tsx
+-----------------------------------------
+Customer settings page displaying active plans, comparative plan grids, 
+and plan upgrade tools.
+
+* UPGRADE FLOW OPERATION:
+  - Displays plan selection options (Basic, Premium, Monthly, Yearly).
+  - Displays comparison grids detailing plan attributes.
+  - If a plan is selected, prompts a confirmation dialog displaying immediate 
+    proration details.
+  - Calls upgradeSubscription(newPlanId) to execute the plan change and 
+    refreshes the dashboard to update Next Payment and Amount Due metrics.
+
+3. customerService.ts
+-----------------------------------------
+Unified API client wrapper containing fetch methods for customer billing operations.
+
+* METHODS EXPOSED:
+  - getCurrentSubscription(): GET /api/customer/subscription
+  - upgradeSubscription(planId): PUT /api/customer/subscription/upgrade
+  - getInvoices(): GET /api/customer/invoices
+  - getPaymentMethods(): GET /api/customer/payment-methods
+  - addPaymentMethod(payload): POST /api/customer/payment-methods
+
+================================================================================
+C. ADVANCED MATH & COMPUTATIONAL BUSINESS RULES
+================================================================================
+
+1. TAX RULES (GST - 18%)
+   GST is calculated on the net subtotal (after coupon discount has been applied):
+   - Subtotal = PlanPrice + AddonPrices - CouponDiscount
+   - TaxMinor = Subtotal * 0.18
+   - TotalMinor = Subtotal + TaxMinor
+
+2. COUPON DISCOUNTS
+   Coupons can be applied with two different discount structures:
+   - PERCENT Type: Coupon discount matches a percentage of the base price.
+     DiscountMinor = PlanPrice * (CouponAmount / 100)
+   - FIXED Type: Coupon discount matches a fixed amount.
+     DiscountMinor = CouponAmount
+   The subtotal is updated to 0 if the discount exceeds the base price.
+
+3. METERED RECORDINGS
+   Metered components track user resource usage, and are invoiced at the 
+   end of the billing cycle based on usage volume.
+================================================================================

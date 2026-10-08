@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+:root {
+  --bg-light: #F9FAFB;
+  --text-dark: #111827;
+
+  /* Status Colors */
+  --success-bg: #ecfdf5;
+  --success-text: #059669;
+  --info-bg: #eff6ff;
+  --info-text: #2563eb;
+  --error-bg: #fef2f2;
+  --error-text: #dc2626;
+  --warning-bg: #fffbeb;
+  --warning-text: #d97706;
+}
+
+/* Disable default password eye toggle */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-font {
+  font-family: 'Outfit', sans-serif;
+}
+
+code, pre, .mono-font {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Authentication Layout */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: #0A1628;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.auth-wrapper {
+  width: 100%;
+  max-width: 580px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Flushed Inputs */
+.flushed-input-group {
+  margin-bottom: 20px;
+}
+
+.flushed-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  color: #FFFFFF;
+  width: 100%;
+  padding: 8px 0;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  outline: none;
+  border-radius: 0; /* Override any mobile browser defaults */
+}
+
+.flushed-input:focus {
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 2px;
+  padding-bottom: 7px; /* Compensate for thicker border */
+  box-shadow: none;
+}
+
+.flushed-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.text-muted {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Terms & Action Container */
+.terms-container {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-top: 24px;
+}
+
+.terms-text {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.btn-pill-primary {
+  background-color: #2563EB;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 50px;
+  width: 100%;
+  padding: 14px 24px;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-pill-primary:hover {
+  background-color: #1D4ED8;
+  color: #FFFFFF;
+}
+
+.btn-pill-primary:disabled {
+  opacity: 0.7;
+}
+
+/* Layout Overrides */
+.auth-tabs .btn {
+  border-radius: 8px;
+}
+
+/* Slide-over Drawer Styles & Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.drawer-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 24, 39, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.drawer-panel.closing {
+  animation: slideOutRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.drawer-header {
+  padding: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: rgba(249, 250, 251, 0.5);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.drawer-footer {
+  padding: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(249, 250, 251, 0.5);
+}

@@ -1,0 +1,32 @@
+# Build output
+backend/target/
+frontend/dist/
+frontend/dist-ssr/
+
+# Dependencies
+node_modules/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+backend/src/main/resources/application-local.properties
+
+# IDE / OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Tooling
+.planning/
+.windsurf/
+
+# Logs
+*.log
+
+# Office documents (reports, templates)
+*.docx
+*.doc
+~$*

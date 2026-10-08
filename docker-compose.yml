@@ -1,0 +1,42 @@
+# Runs the whole stack: MySQL with seed data, the Spring Boot API and the React app.
+#   docker compose up --build
+# then open http://localhost:3000
+# To turn on the AI assistant, set ANTHROPIC_API_KEY in your shell (or a .env file) first.
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./backend/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./backend/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      retries: 30
+
+  backend:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:mysql://db:3306/subscription_billing
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      RECURIQ_AI_MODEL: ${RECURIQ_AI_MODEL:-claude-opus-5-5}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8765:8765"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  db-data:

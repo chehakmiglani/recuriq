@@ -1,0 +1,507 @@
+/* Bootstrap Custom Theme - Curate+ Editorial Style */
+/* Import this AFTER bootstrap CSS to override with Curate+ colors */
+
+:root {
+  /* Curate+ Editorial Colors */
+  --bs-cream: #F9F7F2;
+  --bs-beige: #F0EEE8;
+  --bs-burnt-orange: #D14D28;
+  --bs-burnt-orange-hover: #B93D1A;
+  --bs-near-black: #121212;
+  --bs-text-primary: #121212;
+  --bs-text-secondary: rgba(18, 18, 18, 0.7);
+  --bs-text-muted: rgba(18, 18, 18, 0.5);
+  --bs-border-light: rgba(18, 18, 18, 0.08);
+  --bs-border-medium: rgba(18, 18, 18, 0.15);
+  --bs-success: #16a34a;
+  --bs-warning: #f59e0b;
+  --bs-danger: #D14D28;
+  --bs-info: #2563eb;
+  
+  /* Override Bootstrap Variables */
+  --bs-body-bg: #F9F7F2;
+  --bs-body-color: #121212;
+  --bs-primary: #D14D28;
+  --bs-primary-rgb: 209, 77, 40;
+  --bs-secondary: #F0EEE8;
+  --bs-secondary-rgb: 240, 238, 232;
+  --bs-success: #16a34a;
+  --bs-success-rgb: 22, 163, 74;
+  --bs-danger: #D14D28;
+  --bs-danger-rgb: 209, 77, 40;
+  --bs-warning: #f59e0b;
+  --bs-info: #2563eb;
+  --bs-light: #F9F7F2;
+  --bs-dark: #121212;
+  
+  /* Bootstrap Component Overrides */
+  --bs-border-color: rgba(18, 18, 18, 0.08);
+  --bs-border-color-translucent: rgba(18, 18, 18, 0.15);
+  --bs-link-color: #D14D28;
+  --bs-link-hover-color: #B93D1A;
+  --bs-focus-ring-color: rgba(209, 77, 40, 0.25);
+  
+  /* Typography */
+  --bs-font-sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bs-font-serif: 'Playfair Display', Georgia, serif;
+  --bs-font-monospace: monospace;
+  
+  /* Border Radius - Keep it minimal/editorial */
+  --bs-border-radius: 0;
+  --bs-border-radius-sm: 0;
+  --bs-border-radius-lg: 0;
+  --bs-border-radius-xl: 0;
+  --bs-border-radius-xxl: 0;
+  
+  /* Shadows - Remove for flat editorial style */
+  --bs-box-shadow: none;
+  --bs-box-shadow-sm: none;
+  --bs-box-shadow-lg: none;
+  
+  /* Card */
+  --bs-card-bg: #F9F7F2;
+  --bs-card-border-color: rgba(18, 18, 18, 0.08);
+  --bs-card-cap-bg: #F0EEE8;
+  
+  /* Input */
+  --bs-input-bg: transparent;
+  --bs-input-border-color: rgba(18, 18, 18, 0.15);
+  --bs-input-focus-border-color: #D14D28;
+  --bs-input-focus-box-shadow: none;
+  
+  /* Table */
+  --bs-table-bg: transparent;
+  --bs-table-border-color: rgba(18, 18, 18, 0.08);
+  --bs-table-hover-bg: #F0EEE8;
+  
+  /* Modal */
+  --bs-modal-bg: #F9F7F2;
+  --bs-modal-border-color: rgba(18, 18, 18, 0.08);
+  --bs-modal-header-border-color: rgba(18, 18, 18, 0.08);
+  --bs-modal-footer-border-color: rgba(18, 18, 18, 0.08);
+  
+  /* Sidebar */
+  --bs-offcanvas-bg: #F0EEE8;
+  
+  /* Badge */
+  --bs-badge-padding-x: 0.75rem;
+  --bs-badge-padding-y: 0.375rem;
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif !important;
+}
+
+.font-sans {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 0;
+}
+
+.btn-primary {
+  background-color: var(--bs-burnt-orange);
+  border-color: var(--bs-burnt-orange);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--bs-burnt-orange-hover);
+  border-color: var(--bs-burnt-orange-hover);
+}
+
+.btn-outline-primary {
+  color: var(--bs-burnt-orange);
+  border-color: var(--bs-burnt-orange);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--bs-burnt-orange);
+  border-color: var(--bs-burnt-orange);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border-color: var(--bs-border-medium);
+  color: var(--bs-text-secondary);
+}
+
+.btn-secondary:hover {
+  border-color: var(--bs-burnt-orange);
+  color: var(--bs-burnt-orange);
+  background-color: transparent;
+}
+
+.btn-outline-secondary {
+  color: var(--bs-text-secondary);
+  border-color: var(--bs-border-medium);
+}
+
+.btn-outline-secondary:hover {
+  border-color: var(--bs-burnt-orange);
+  color: var(--bs-burnt-orange);
+}
+
+.btn-success {
+  background-color: #16a34a;
+  border-color: #16a34a;
+}
+
+.btn-success:hover {
+  background-color: #15803d;
+  border-color: #15803d;
+}
+
+.btn-outline-danger {
+  color: var(--bs-burnt-orange);
+  border-color: var(--bs-burnt-orange);
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--bs-burnt-orange);
+  border-color: var(--bs-burnt-orange);
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+}
+
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon-danger {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-burnt-orange);
+  border-color: var(--bs-border-medium);
+}
+
+.btn-icon-danger:hover {
+  background-color: var(--bs-burnt-orange);
+  border-color: var(--bs-burnt-orange);
+  color: white;
+}
+
+/* ==================== CARDS ==================== */
+.card {
+  border: 1px solid var(--bs-border-color);
+  background-color: var(--bs-card-bg);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.card-header {
+  background-color: var(--bs-card-cap-bg);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.card-footer {
+  background-color: var(--bs-card-cap-bg);
+  border-top: 1px solid var(--bs-border-color);
+}
+
+/* ==================== FORMS ==================== */
+.form-control {
+  background-color: transparent;
+  border: 1px solid var(--bs-border-medium);
+  color: var(--bs-text-primary);
+  border-radius: 0;
+  padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+  background-color: rgba(209, 77, 40, 0.02);
+  border-color: var(--bs-burnt-orange);
+  box-shadow: none;
+  color: var(--bs-text-primary);
+}
+
+.form-control::placeholder {
+  color: var(--bs-text-muted);
+}
+
+.form-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--bs-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.form-select {
+  background-color: transparent;
+  border: 1px solid var(--bs-border-medium);
+  color: var(--bs-text-primary);
+  border-radius: 0;
+  padding: 0.75rem 1rem;
+}
+
+.form-select:focus {
+  border-color: var(--bs-burnt-orange);
+  box-shadow: none;
+}
+
+.form-check-input:checked {
+  background-color: var(--bs-burnt-orange);
+  border-color: var(--bs-burnt-orange);
+}
+
+.form-check-input:focus {
+  box-shadow: none;
+  border-color: var(--bs-burnt-orange);
+}
+
+/* ==================== TABLES ==================== */
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--bs-border-color);
+  --bs-table-hover-bg: var(--bs-beige);
+  --bs-table-hover-color: var(--bs-text-primary);
+}
+
+.table thead th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--bs-text-muted);
+  background-color: var(--bs-beige);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.table tbody td {
+  font-size: 0.875rem;
+  color: var(--bs-text-secondary);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+/* ==================== BADGES ==================== */
+.badge {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0;
+}
+
+.badge-outline-success {
+  border: 1px solid #16a34a;
+  color: #16a34a;
+  background: transparent;
+}
+
+.badge-outline-warning {
+  border: 1px solid #f59e0b;
+  color: #f59e0b;
+  background: transparent;
+}
+
+.badge-outline-danger {
+  border: 1px solid var(--bs-burnt-orange);
+  color: var(--bs-burnt-orange);
+  background: transparent;
+}
+
+.badge-outline-primary {
+  border: 1px solid #2563eb;
+  color: #2563eb;
+  background: transparent;
+}
+
+/* ==================== NAVS & TABS ==================== */
+.nav-tabs {
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--bs-text-secondary);
+  font-weight: 500;
+  padding: 0.875rem 1.25rem;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: transparent;
+  color: var(--bs-text-primary);
+}
+
+.nav-tabs .nav-link.active {
+  border-bottom-color: var(--bs-burnt-orange);
+  color: var(--bs-burnt-orange);
+  background: transparent;
+}
+
+/* ==================== MODAL ==================== */
+.modal-content {
+  border-radius: 0;
+  border: 1px solid var(--bs-border-color);
+  background-color: var(--bs-modal-bg);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--bs-border-color);
+}
+
+/* ==================== ALERTS ==================== */
+.alert {
+  border-radius: 0;
+  border: 1px solid var(--bs-border-medium);
+}
+
+.alert-warning {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+.alert-success {
+  border-color: #16a34a;
+  color: #16a34a;
+  background-color: rgba(22, 163, 74, 0.1);
+}
+
+/* ==================== PAGINATION ==================== */
+.pagination {
+  gap: 0.5rem;
+}
+
+.page-link {
+  border: 1px solid var(--bs-border-medium);
+  color: var(--bs-text-secondary);
+  padding: 0.5rem 0.75rem;
+}
+
+.page-link:hover {
+  border-color: var(--bs-burnt-orange);
+  color: var(--bs-burnt-orange);
+  background: transparent;
+}
+
+.page-item.active .page-link {
+  background-color: var(--bs-burnt-orange);
+  border-color: var(--bs-burnt-orange);
+  color: white;
+}
+
+/* ==================== DROPDOWNS ==================== */
+.dropdown-menu {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0;
+  box-shadow: none;
+  background-color: var(--bs-cream);
+}
+
+.dropdown-item {
+  color: var(--bs-text-secondary);
+}
+
+.dropdown-item:hover {
+  background-color: var(--bs-beige);
+  color: var(--bs-text-primary);
+}
+
+.dropdown-item:focus {
+  background-color: var(--bs-beige);
+  color: var(--bs-text-primary);
+}
+
+/* ==================== CUSTOM UTILITY CLASSES ==================== */
+.bg-cream {
+  background-color: #F9F7F2 !important;
+}
+
+.bg-beige {
+  background-color: #F0EEE8 !important;
+}
+
+.text-burnt-orange {
+  color: #D14D28 !important;
+}
+
+.text-near-black {
+  color: #121212 !important;
+}
+
+.border-editorial {
+  border-color: rgba(18, 18, 18, 0.08) !important;
+}
+
+.border-editorial-medium {
+  border-color: rgba(18, 18, 18, 0.15) !important;
+}
+
+.fs-editorial-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.fs-editorial-label-lg {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* Letter spacing utilities */
+.ls-1 {
+  letter-spacing: 0.1em;
+}
+
+.ls-2 {
+  letter-spacing: 0.15em;
+}
+
+/* Custom transition for hover states */
+.hover-border-orange:hover {
+  border-color: #D14D28 !important;
+}
+
+/* Focus ring override */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(209, 77, 40, 0.25) !important;
+}
+
+/* ==================== RESPONSIVE SIDEBAR ==================== */
+@media (max-width: 768px) {
+  .sidebar-collapsed {
+    width: 70px;
+  }
+  
+  .sidebar-collapsed .nav-text {
+    display: none;
+  }
+}
