@@ -49,47 +49,47 @@ export const toggleProductStatus = (id: number) =>
   adminFetch<void>(`/products/${id}/toggle-status`, { method: 'PATCH' });
 // ==================== PLANS ====================
 export const getAllPlans = () => adminFetch<PlanResponse[]>('/plans');
-export const createPlan = (data: any) =>
+export const createPlan = (data: object) =>
   adminFetch<PlanResponse>('/plans', { method: 'POST', body: JSON.stringify(data) });
 export const deletePlan = (id: number) =>
   adminFetch<void>(`/plans/${id}`, { method: 'DELETE' });
 // ==================== PRICE BOOKS ====================
 export const getPriceBooks = () => adminFetch<PriceBookResponse[]>('/pricebooks');
-export const createPriceBook = (data: any) =>
+export const createPriceBook = (data: object) =>
   adminFetch<PriceBookResponse>('/pricebooks', { method: 'POST', body: JSON.stringify(data) });
-export const updatePriceBook = (id: number, data: any) =>
+export const updatePriceBook = (id: number, data: object) =>
   adminFetch<PriceBookResponse>(`/pricebooks/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const archivePriceBook = (id: number) =>
   adminFetch<void>(`/pricebooks/${id}/archive`, { method: 'PUT' });
 // ==================== ADD-ONS ====================
 export const getAddOns = () => adminFetch<AddOnResponse[]>('/addons');
-export const createAddOn = (data: any) =>
+export const createAddOn = (data: object) =>
   adminFetch<AddOnResponse>('/addons', { method: 'POST', body: JSON.stringify(data) });
-export const updateAddOn = (id: number, data: any) =>
+export const updateAddOn = (id: number, data: object) =>
   adminFetch<AddOnResponse>(`/addons/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const toggleAddOnStatus = (id: number) =>
   adminFetch<void>(`/addons/${id}/toggle-status`, { method: 'PATCH' });
 // ==================== METERED COMPONENTS ====================
 export const getMeteredComponents = () => adminFetch<MeteredComponentResponse[]>('/metered');
-export const createMetered = (data: any) =>
+export const createMetered = (data: object) =>
   adminFetch<MeteredComponentResponse>('/metered', { method: 'POST', body: JSON.stringify(data) });
-export const updateMetered = (id: number, data: any) =>
+export const updateMetered = (id: number, data: object) =>
   adminFetch<MeteredComponentResponse>(`/metered/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const toggleMeteredStatus = (id: number) =>
   adminFetch<void>(`/metered/${id}/toggle-status`, { method: 'PATCH' });
 // ==================== TAX RATES ====================
 export const getTaxRates = () => adminFetch<TaxRate[]>('/taxrates');
-export const createTaxRate = (data: any) =>
+export const createTaxRate = (data: object) =>
   adminFetch<TaxRate>('/taxrates', { method: 'POST', body: JSON.stringify(data) });
-export const updateTaxRate = (id: number, data: any) =>
+export const updateTaxRate = (id: number, data: object) =>
   adminFetch<TaxRate>(`/taxrates/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const deleteTaxRate = (id: number) =>
   adminFetch<void>(`/taxrates/${id}`, { method: 'DELETE' });
 // ==================== COUPONS ====================
 export const getCoupons = () => adminFetch<Coupon[]>('/coupons');
-export const createCoupon = (data: any) =>
+export const createCoupon = (data: object) =>
   adminFetch<Coupon>('/coupons', { method: 'POST', body: JSON.stringify(data) });
-export const updateCoupon = (id: number, data: any) =>
+export const updateCoupon = (id: number, data: object) =>
   adminFetch<Coupon>(`/coupons/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const toggleCouponStatus = (id: number) =>
   adminFetch<void>(`/coupons/${id}/toggle-status`, { method: 'PATCH' });
@@ -97,7 +97,7 @@ export const toggleCouponStatus = (id: number) =>
 export const getCustomers = () => adminFetch<CustomerResponse[]>('/customers');
 // ==================== STAFF ====================
 export const getStaff = () => adminFetch<StaffResponse[]>('/staff');
-export const createStaff = (data: any) =>
+export const createStaff = (data: object) =>
   adminFetch<StaffResponse>('/staff', { method: 'POST', body: JSON.stringify(data) });
 export const deleteStaff = (id: number) =>
   adminFetch<void>(`/staff/${id}`, { method: 'DELETE' });

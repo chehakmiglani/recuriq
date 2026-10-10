@@ -2,7 +2,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface Props {
-  data: any[];
+  data: Array<{ date: string } & Record<string, string | number>>;
   bars: Array<{ key: string; color: string; name: string }>;
   valuePrefix?: string;
 }
@@ -28,7 +28,7 @@ export const StackedBarChart: React.FC<Props> = ({ data, bars, valuePrefix = 'â‚
           contentStyle={{ borderRadius: '12px', border: 'none', background: '#1e293b', color: '#ffffff', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', padding: '8px 12px' }}
           labelStyle={{ color: '#94a3b8', fontSize: '11px', fontWeight: 500, marginBottom: '4px' }}
           itemStyle={{ fontSize: '13px', fontWeight: 500 }}
-          formatter={(value: any, name: any) => [`${valuePrefix}${Number(value).toLocaleString()}`, name]}
+          formatter={(value, name) => [`${valuePrefix}${Number(value).toLocaleString()}`, name]}
         />
         <Legend verticalAlign="bottom" height={40} iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 500, color: '#4b5563', paddingTop: '20px' }} />
         {bars.map((bar, idx) => (

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getCustomerProfile } from '../services/customer/customerService';
+import { errorMessage } from '../utils/apiError';
 
 interface CustomerContextType {
   isCustomer: boolean | null;
@@ -23,9 +24,9 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Try to fetch customer profile - if successful, user is a customer
       await getCustomerProfile();
       setIsCustomer(true);
-    } catch (error: any) {
+    } catch (error) {
       // If we get 400/404/Customer not found, user is not a customer yet
-      if (error.message?.includes('400') || error.message?.includes('404') || error.message?.includes('Customer not found')) {
+      if (errorMessage(error).includes('400') || errorMessage(error).includes('404') || errorMessage(error).includes('Customer not found')) {
         setIsCustomer(false);
       } else {
         // Other errors - assume not a customer to be safe
@@ -38,6 +39,7 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
     checkCustomerStatus();
   }, []);
 
@@ -48,4 +50,5 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- context modules export their provider and hook together
 export const useCustomerContext = () => useContext(CustomerContext);

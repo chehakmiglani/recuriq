@@ -7,6 +7,7 @@ import { FormField } from '../../../components/admin/shared/FormField';
 import { ConfirmDialog } from '../../../components/shared/ConfirmDialog';
 import { getAllPlans, createPlan, deletePlan } from '../../../services/admin/adminService';
 import type { PlanResponse } from '../../../services/admin/adminTypes';
+import { errorMessage } from '../../../utils/apiError';
 const formatPrice = (minor: number, cur: string) => {
   const amt = minor / 100;
   if (cur === 'INR') return `₹${amt.toLocaleString('en-IN')}`;
@@ -43,7 +44,7 @@ export const PlansPage: React.FC = () => {
     try {
       await createPlan(payload);
       setModalOpen(false); load();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(errorMessage(e)); }
     finally { setSaving(false); }
   };
 
@@ -55,8 +56,8 @@ export const PlansPage: React.FC = () => {
     try {
       await deletePlan(id);
       load();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e) {
+      alert(errorMessage(e));
     } finally {
       closeConfirmDialog();
     }

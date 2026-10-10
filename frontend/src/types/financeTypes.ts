@@ -51,7 +51,7 @@ export interface Invoice {
   customerId: string;
   customerName: string;
   amount: number;
-  status: 'Paid' | 'Pending' | 'Failed' | 'Overdue' | 'Draft';
+  status: string;   // as sent by the API, e.g. PAID / SUCCESS / ISSUED
   date: string;
   dueDate: string;
   lineItems?: InvoiceLineItem[];
@@ -62,7 +62,7 @@ export interface Payment {
   invoiceId: string;
   customerId: string;
   amount: number;
-  status: 'Successful' | 'Failed';
+  status: string;   // as sent by the API, e.g. PAID / SUCCESS / ISSUED
   method: string;
   date: string;
 }
@@ -72,7 +72,7 @@ export interface Refund {
   paymentId: string;
   customerId: string;
   amount: number;
-  status: 'Approved' | 'Pending' | 'Rejected' | 'Processing';
+  status: string;   // as sent by the API, e.g. PAID / SUCCESS / ISSUED
   reason: string;
   date: string;
 }

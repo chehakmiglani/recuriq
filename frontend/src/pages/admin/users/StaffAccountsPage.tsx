@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../../../components/shared/ConfirmDialog';
 import { useAuthContext } from '../../../context/AuthContext';
 import { getStaff, createStaff, deleteStaff } from '../../../services/admin/adminService';
 import type { StaffResponse } from '../../../services/admin/adminTypes';
+import { errorMessage } from '../../../utils/apiError';
 
 const roleStyles: Record<string, { border: string; color: string }> = {
   ADMIN: { border: '#0f766e', color: '#0f766e' },
@@ -57,7 +58,7 @@ export const StaffAccountsPage: React.FC = () => {
     try {
       await createStaff(form);
       setModalOpen(false); load();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(errorMessage(e)); }
     finally { setSaving(false); }
   };
 

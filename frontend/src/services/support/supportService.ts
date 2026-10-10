@@ -104,7 +104,17 @@ export const getPendingCancellationRequests = async (): Promise<CancellationRequ
   return response.json();
 };
 
-export const approveCancellationRequest = async (requestId: number, agentNotes: string): Promise<any> => {
+/** Result of approving a cancellation, including any refund that was issued. */
+export interface CancellationApproval {
+  refundIssued: boolean;
+  refundAmountMinor: number;
+  currency: string;
+  refundGatewayRef: string | null;
+  creditNoteNumber: string | null;
+  message: string;
+}
+
+export const approveCancellationRequest = async (requestId: number, agentNotes: string): Promise<CancellationApproval> => {
   const response = await fetchWithSession(`${API_BASE}/cancellation-requests/${requestId}/approve`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { NavLink, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuthContext } from '../../../context/AuthContext';
 import {
@@ -68,7 +68,7 @@ export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuthContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<NavItem[]>([]);
+  const [searchOpen, setSearchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLFormElement>(null);
 
@@ -79,7 +79,7 @@ export const AdminLayout: React.FC = () => {
         setDropdownOpen(false);
       }
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setSearchResults([]);
+        setSearchOpen(false);
       }
     };
 
@@ -87,16 +87,12 @@ export const AdminLayout: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Update search results
-  useEffect(() => {
-    if (searchQuery.trim().length > 0) {
-      const filtered = navItems.filter(item =>
-        item.label.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setSearchResults(filtered);
-    } else {
-      setSearchResults([]);
-    }
+  // Nav items matching the search box
+  const searchResults = useMemo(() => {
+    if (searchQuery.trim().length === 0) return [];
+    return navItems.filter(item =>
+      item.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   }, [searchQuery]);
 
   const handleLogout = async () => {
@@ -110,14 +106,14 @@ export const AdminLayout: React.FC = () => {
     if (searchResults.length > 0) {
       navigate(searchResults[0].path);
       setSearchQuery('');
-      setSearchResults([]);
+      setSearchOpen(false);
     }
   };
 
   const handleSelectResult = (path: string) => {
     navigate(path);
     setSearchQuery('');
-    setSearchResults([]);
+    setSearchOpen(false);
   };
 
   const getTitle = () => {
@@ -221,7 +217,7 @@ export const AdminLayout: React.FC = () => {
                 type="text"
                 placeholder="Quick Search Admin..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
                 style={{
                   width: '100%',
                   background: '#f8fafc',
@@ -234,7 +230,7 @@ export const AdminLayout: React.FC = () => {
                 }}
               />
               {/* Search Results Dropdown */}
-              {searchResults.length > 0 && (
+              {searchOpen && searchResults.length > 0 && (
                 <div style={{
                   position: 'absolute',
                   top: 'calc(100% + 8px)',

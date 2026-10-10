@@ -6,6 +6,7 @@ import { AdminModal } from '../../../components/admin/shared/AdminModal';
 import { FormField } from '../../../components/admin/shared/FormField';
 import { getCoupons, createCoupon, updateCoupon, toggleCouponStatus } from '../../../services/admin/adminService';
 import type { Coupon } from '../../../services/admin/adminTypes';
+import { errorMessage } from '../../../utils/apiError';
 const emptyForm = { code: '', name: '', type: 'PERCENT', amount: '', currency: 'INR', duration: 'ONCE', durationInMonths: '', maxRedemptions: '', validFrom: new Date().toISOString().split('T')[0], validTo: '' };
 export const CouponsPage: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -29,7 +30,7 @@ export const CouponsPage: React.FC = () => {
       if (editId) await updateCoupon(editId, payload);
       else await createCoupon(payload);
       setModalOpen(false); load();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(errorMessage(e)); }
     finally { setSaving(false); }
   };
   const handleToggle = async (id: number) => {

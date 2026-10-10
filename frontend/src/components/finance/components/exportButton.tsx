@@ -34,7 +34,7 @@ export const ExportButton: React.FC<Props> = ({ type }) => {
         document.body.removeChild(a);
       });
 
-    } catch (err) {
+    } catch {
       alert('Export failed. Please try again.');
     } finally {
       setIsExporting(false);

@@ -5,8 +5,11 @@ import com.recuriq.billing.dto.ai.AssistantResponse;
 
 public interface AiAssistantService {
 
-    /** True when an Anthropic API key is configured. */
+    /** True when an AI provider (Groq or Claude) is configured. */
     boolean isEnabled();
+
+    /** e.g. "Groq · openai/gpt-oss-120b"; null when disabled. */
+    String providerName();
 
     /** Answers a plain-English billing question using live data from the analytics services. */
     AssistantResponse ask(AssistantRequest request);

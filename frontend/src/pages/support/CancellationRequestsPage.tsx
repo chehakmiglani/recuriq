@@ -6,6 +6,7 @@ import {
   approveCancellationRequest, 
   rejectCancellationRequest 
 } from '../../services/support/supportService';
+import type { CancellationApproval } from '../../services/support/supportService';
 import type { CancellationRequest } from '../../services/customer/customerService';
 import { Check, X } from 'lucide-react';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
@@ -19,14 +20,7 @@ export const CancellationRequestsPage: React.FC = () => {
   const [agentNotes, setAgentNotes] = useState('');
   
   // Refund details modal
-  const [refundInfo, setRefundInfo] = useState<{
-    refundIssued: boolean;
-    refundAmountMinor: number;
-    currency: string;
-    refundGatewayRef: string | null;
-    creditNoteNumber: string | null;
-    message: string;
-  } | null>(null);
+  const [refundInfo, setRefundInfo] = useState<CancellationApproval | null>(null);
 
   // Confirm Dialog State
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -72,6 +66,7 @@ export const CancellationRequestsPage: React.FC = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
     fetchRequests();
   }, []);
 

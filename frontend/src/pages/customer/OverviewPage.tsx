@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import * as CustomerService from '../../services/customer/customerService';
 import './OverviewPage.css';
+import { errorMessage } from '../../utils/apiError';
 
 export const OverviewPage: React.FC = () => {
   const [subscription, setSubscription] = useState<CustomerService.Subscription | null>(null);
@@ -22,10 +23,6 @@ export const OverviewPage: React.FC = () => {
   const [notifications, setNotifications] = useState<CustomerService.Notification[]>([]);
   const [isCustomer, setIsCustomer] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
 
   const loadDashboardData = async () => {
     try {
@@ -36,8 +33,8 @@ export const OverviewPage: React.FC = () => {
         sub = await CustomerService.getCurrentSubscription();
         setIsCustomer(true);
         setSubscription(sub);
-      } catch (err: any) {
-        const errMsg = err.message || '';
+      } catch (err) {
+        const errMsg = errorMessage(err) || '';
         if (errMsg.includes('400') || errMsg.includes('404') || errMsg.includes('Customer not found')) {
           setIsCustomer(false);
           setLoading(false);
@@ -62,12 +59,17 @@ export const OverviewPage: React.FC = () => {
           .catch(err => console.error('Failed to load notifications:', err))
       ]);
 
-    } catch (error: any) {
-      console.error('Failed to load dashboard data:', error.message || error);
+    } catch (error) {
+      console.error('Failed to load dashboard data:', errorMessage(error) || error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
+    loadDashboardData();
+  }, []);
 
   const formatAmount = (amount: number, currency: string) => {
     const locale = currency === 'USD' ? 'en-US' : currency === 'GBP' ? 'en-GB' : 'en-IN';
@@ -102,7 +104,7 @@ export const OverviewPage: React.FC = () => {
       case 'past_due':
         return '#f59e0b';
       case 'canceled':
-      case 'canceled':
+      case 'cancelled':
       case 'failed':
         return '#dc2626';
       case 'paused':

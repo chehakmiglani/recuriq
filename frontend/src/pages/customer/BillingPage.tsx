@@ -20,10 +20,6 @@ export const BillingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'invoices' | 'payments' | 'credit-notes'>('invoices');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadBillingData();
-  }, []);
-
   const loadBillingData = async () => {
     try {
       const [sub, inv, pay, cn] = await Promise.all([
@@ -42,6 +38,11 @@ export const BillingPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
+    loadBillingData();
+  }, []);
 
   const formatAmount = (amount: number, currency: string) => {
     const locale = currency === 'USD' ? 'en-US' : currency === 'GBP' ? 'en-GB' : 'en-IN';
@@ -65,7 +66,7 @@ export const BillingPage: React.FC = () => {
       a.download = `invoice-${invoiceId}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
-    } catch (error) {
+    } catch {
       alert('Failed to download invoice');
     }
   };

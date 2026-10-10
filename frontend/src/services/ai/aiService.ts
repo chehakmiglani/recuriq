@@ -72,7 +72,7 @@ async function aiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
 }
 
 export const aiService = {
-  getStatus: () => aiFetch<{ assistantEnabled: boolean }>('/status'),
+  getStatus: () => aiFetch<{ assistantEnabled: boolean; provider: string | null }>('/status'),
 
   ask: (question: string, history: ChatTurn[]) =>
     aiFetch<AssistantResponse>('/ask', {

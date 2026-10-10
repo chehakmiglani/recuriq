@@ -6,6 +6,7 @@ import { AdminModal } from '../../../components/admin/shared/AdminModal';
 import { FormField } from '../../../components/admin/shared/FormField';
 import { getAddOns, createAddOn, updateAddOn, toggleAddOnStatus } from '../../../services/admin/adminService';
 import type { AddOnResponse } from '../../../services/admin/adminTypes';
+import { errorMessage } from '../../../utils/apiError';
 const emptyForm = { name: '', priceMinor: '', currency: 'INR', billingPeriod: 'MONTHLY', taxMode: 'EXCLUSIVE' };
 export const AddOnsPage: React.FC = () => {
   const [addOns, setAddOns] = useState<AddOnResponse[]>([]);
@@ -29,7 +30,7 @@ export const AddOnsPage: React.FC = () => {
       if (editId) await updateAddOn(editId, payload);
       else await createAddOn(payload);
       setModalOpen(false); load();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(errorMessage(e)); }
     finally { setSaving(false); }
   };
   const handleToggle = async (id: number) => {

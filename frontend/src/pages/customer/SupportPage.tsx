@@ -28,10 +28,6 @@ export const SupportPage: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  useEffect(() => {
-    loadFAQs();
-  }, []);
-
   const loadFAQs = async () => {
     try {
       const data = await CustomerService.getFAQs();
@@ -43,6 +39,11 @@ export const SupportPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
+    loadFAQs();
+  }, []);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +60,7 @@ export const SupportPage: React.FC = () => {
       setSubject('');
       setMessage('');
       setTimeout(() => setSent(false), 5000);
-    } catch (error) {
+    } catch {
       alert('Failed to send message. Please try again.');
     } finally {
       setSending(false);

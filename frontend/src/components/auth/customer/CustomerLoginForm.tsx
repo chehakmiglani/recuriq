@@ -3,6 +3,7 @@ import { FlushedInput, FlushedPasswordField, LoginButton } from '../shared/FormF
 import { useAuthContext } from '../../../context/AuthContext';
 import { authService } from '../../../services/auth/authService';
 import { useNavigate } from 'react-router-dom';
+import { asApiError, errorMessage } from '../../../utils/apiError';
 
 export const CustomerLoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -21,11 +22,12 @@ export const CustomerLoginForm: React.FC = () => {
       const user = await authService.customerLogin({ email, password });
       await login(user);
       navigate('/');
-    } catch (err: any) {
-      if (err.validationErrors) {
-        setFieldErrors(err.validationErrors);
+    } catch (err) {
+      const fieldErrors = asApiError(err).validationErrors;
+      if (fieldErrors) {
+        setFieldErrors(fieldErrors);
       }
-      setError(err.message || 'Login failed');
+      setError(errorMessage(err) || 'Login failed');
     } finally {
       setLoading(false);
     }

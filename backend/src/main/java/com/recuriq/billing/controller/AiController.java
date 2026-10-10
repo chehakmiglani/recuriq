@@ -1,5 +1,6 @@
 package com.recuriq.billing.controller;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -37,8 +38,11 @@ public class AiController {
      */
     @GetMapping("/status")
     @PreAuthorize("hasAnyRole('FINANCE', 'ADMIN', 'SUPPORT')")
-    public ResponseEntity<Map<String, Boolean>> getStatus() {
-        return ResponseEntity.ok(Map.of("assistantEnabled", aiAssistantService.isEnabled()));
+    public ResponseEntity<Map<String, Object>> getStatus() {
+        Map<String, Object> status = new LinkedHashMap<>();
+        status.put("assistantEnabled", aiAssistantService.isEnabled());
+        status.put("provider", aiAssistantService.providerName());
+        return ResponseEntity.ok(status);
     }
 
     /**

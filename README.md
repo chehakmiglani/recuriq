@@ -5,7 +5,7 @@
 RecurIQ runs the full billing cycle for subscription businesses: plans, trials, proration, invoicing, taxes, coupons, dunning and usage-based billing. It also adds an **AI billing analyst** that answers questions about revenue in plain English, **explainable churn-risk scoring**, and an **MRR forecast**. The demo data belongs to *StreamFlix*, a fictional streaming service that bills its customers through RecurIQ.
 
 [![CI](https://github.com/chehakmiglani/recuriq/actions/workflows/ci.yml/badge.svg)](https://github.com/chehakmiglani/recuriq/actions/workflows/ci.yml)
-![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-brightgreen) ![React](https://img.shields.io/badge/React-19-61dafb) ![TypeScript](https://img.shields.io/badge/TypeScript-6-blue) ![MySQL](https://img.shields.io/badge/MySQL-8-4479a1) ![Claude](https://img.shields.io/badge/AI-Claude-d97757)
+![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-brightgreen) ![React](https://img.shields.io/badge/React-19-61dafb) ![TypeScript](https://img.shields.io/badge/TypeScript-6-blue) ![MySQL](https://img.shields.io/badge/MySQL-8-4479a1) ![AI](https://img.shields.io/badge/AI-Groq%20%7C%20Claude-0f766e)
 
 ![Finance overview with the AI briefing, MRR forecast and most at-risk customers](docs/screenshots/finance-overview.jpg)
 
@@ -49,7 +49,7 @@ flowchart LR
         SCHED["Schedulers<br/>billing runs, snapshots"]
     end
     DB[("MySQL")]
-    CLAUDE[["Anthropic Claude API"]]
+    LLM[["LLM API<br/>Groq or Claude"]]
 
     C --> SEC
     S --> SEC
@@ -59,14 +59,16 @@ flowchart LR
     RISK --> DB
     SCHED --> BILL & ANA
     AI -- read-only tools --> ANA & RISK & FC
-    AI <--> CLAUDE
+    AI <--> LLM
 ```
 
 ## How the AI works
 
-**The analyst** uses Claude's *tool use*. Claude never sees the database or writes SQL. It gets ten read-only tools that wrap the existing analytics services (dashboard KPIs, MRR/ARR/churn/ARPU reports, churn-risk scores, invoices, payments, refunds). For each question it picks the tools it needs, the backend runs them, and Claude writes the answer from the returned figures. Every tool call is listed under the answer so the numbers can be checked.
+**The analyst** uses *tool calling* (function calling) on either **Groq** (free tier, default model `openai/gpt-oss-120b`) or **Anthropic Claude**. The model never sees the database or writes SQL. It gets ten read-only tools that wrap the existing analytics services (dashboard KPIs, MRR/ARR/churn/ARPU reports, churn-risk scores, invoices, payments, refunds). For each question it picks the tools it needs, the backend runs them, and the model writes the answer from the returned figures. Every tool call is listed under the answer so the numbers can be checked.
 
-**The briefing** is one Claude call over a JSON snapshot of the dashboard, forecast and churn risk. It is cached for 30 minutes so opening the dashboard doesn't cost an API call each time.
+Both providers share the same tools and prompts behind one `LlmProvider` interface, so adding another provider is a single class.
+
+**The briefing** is one model call over a JSON snapshot of the dashboard, forecast and churn risk. It is cached for 30 minutes so opening the dashboard doesn't cost an API call each time.
 
 **Churn risk and the forecast don't use the API.** They are deterministic, so they run without a key and can be unit-tested:
 
@@ -84,14 +86,14 @@ flowchart LR
 
 Scores of 60 and above are **High** risk, 30–59 are **Medium**. The forecast fits a least-squares trend line through the last six months of MRR snapshots.
 
-Without an `ANTHROPIC_API_KEY`, the analyst page explains how to turn it on, the briefing falls back to a rule-based summary, and everything else works normally.
+Without an API key, the analyst page explains how to turn it on, the briefing falls back to a rule-based summary, and everything else works normally.
 
 ## Tech stack
 
 | Layer | Technology |
 |---|---|
 | Backend | Java 17, Spring Boot 3.4, Spring Security, Spring Data JPA, Bean Validation, OpenPDF, springdoc-openapi |
-| AI | Anthropic Claude API via the official Java SDK (tool use) |
+| AI | Groq (OpenAI-compatible API) or Anthropic Claude (official Java SDK), with tool calling |
 | Frontend | React 19, TypeScript, Vite, React Router, Bootstrap 5, Recharts, Lucide icons |
 | Database | MySQL 8 |
 | Tooling | JUnit 5 + Mockito (590+ tests), GitHub Actions, Docker Compose |
@@ -103,20 +105,21 @@ Without an `ANTHROPIC_API_KEY`, the analyst page explains how to turn it on, the
 ```bash
 docker compose up --build
 ```
-Open `http://localhost:3000`. MySQL is created and seeded automatically. To turn on the AI features, set `ANTHROPIC_API_KEY` in your shell or in a `.env` file next to `docker-compose.yml` first.
+Open `http://localhost:3000`. MySQL is created and seeded automatically. To turn on the AI features, copy `.env.example` to `.env` and add your API key first.
 
 ### Option B: run locally
 
-**Prerequisites:** JDK 17+, Maven 3.9+, Node.js 20+, MySQL 8, and optionally an [Anthropic API key](https://console.anthropic.com/).
+**Prerequisites:** JDK 17+, Maven 3.9+, Node.js 20+, MySQL 8, and optionally a free [Groq API key](https://console.groq.com/keys).
 
 1. **Database:** run `backend/src/main/resources/schema.sql`, then `data.sql`, against MySQL.
-2. **Backend:**
+2. **AI key (optional):** copy `.env.example` to `.env` in the project root and set `GROQ_API_KEY`.
+3. **Backend:**
    ```bash
    cd backend
    mvn spring-boot:run
    ```
    API on `http://localhost:8765`, Swagger UI on `http://localhost:8765/swagger-ui.html`.
-3. **Frontend:**
+4. **Frontend:**
    ```bash
    cd frontend
    npm install
@@ -130,8 +133,13 @@ Open `http://localhost:3000`. MySQL is created and seeded automatically. To turn
 |---|---|---|
 | `DB_URL` | `jdbc:mysql://localhost:3306/subscription_billing` | Database connection |
 | `DB_USERNAME` / `DB_PASSWORD` | `root` / `root` | Database credentials |
-| `ANTHROPIC_API_KEY` | *(unset)* | Turns on the AI analyst and briefing. Never commit it. |
-| `RECURIQ_AI_MODEL` | `claude-opus-5-5` | Claude model used by the AI features |
+| `GROQ_API_KEY` | *(unset)* | Turns on the AI features using Groq ([free key](https://console.groq.com/keys)) |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq model |
+| `ANTHROPIC_API_KEY` | *(unset)* | Uses Claude instead (only when `GROQ_API_KEY` is empty) |
+| `CLAUDE_MODEL` | `claude-opus-5-5` | Claude model |
+| `RECURIQ_AI_PROVIDER` | `auto` | `auto`, `groq` or `anthropic` |
+
+The easiest way to set these is a `.env` file: copy `.env.example` to `.env` in the project root and fill it in. The backend and Docker Compose both read it, and it is git-ignored so keys are never committed.
 
 ## AI API
 

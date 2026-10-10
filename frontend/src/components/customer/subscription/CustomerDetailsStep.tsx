@@ -3,6 +3,7 @@ import { Loader2, MapPin, Phone, Globe } from 'lucide-react';
 import type { Plan } from '../../../services/customer/customerService';
 import * as CustomerService from '../../../services/customer/customerService';
 import { validateCustomerDetails } from '../../../utils/subscriptionValidation';
+import { errorMessage } from '../../../utils/apiError';
 
 interface CustomerDetailsStepProps {
   plan: Plan;
@@ -67,8 +68,8 @@ export const CustomerDetailsStep: React.FC<CustomerDetailsStepProps> = ({ plan, 
     try {
       const result = await CustomerService.registerCustomerDetails(formData);
       onComplete({ customerId: result.customerId, country: formData.country });
-    } catch (err: any) {
-      setBackendError(err.message || 'Failed to save your details');
+    } catch (err) {
+      setBackendError(errorMessage(err) || 'Failed to save your details');
     } finally {
       setLoading(false);
     }

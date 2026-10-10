@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import * as CustomerService from '../../services/customer/customerService';
 import './SubscriptionCheckoutPage.css';
+import { errorMessage } from '../../utils/apiError';
 
 export const SubscriptionCheckoutPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -51,6 +52,7 @@ export const SubscriptionCheckoutPage: React.FC = () => {
   }, [planId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
     loadPlanAndAddons();
   }, [loadPlanAndAddons]);
 
@@ -133,8 +135,8 @@ export const SubscriptionCheckoutPage: React.FC = () => {
         });
         navigate('/dashboard');
       }
-    } catch (error: any) {
-      alert(error.message || 'Failed to complete subscription');
+    } catch (error) {
+      alert(errorMessage(error) || 'Failed to complete subscription');
     } finally {
       setProcessing(false);
     }

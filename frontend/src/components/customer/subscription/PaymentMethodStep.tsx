@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Loader2, CreditCard, Smartphone, Check } from 'lucide-react';
 import * as CustomerService from '../../../services/customer/customerService';
 import { validatePaymentMethod, validateExpiryDate } from '../../../utils/subscriptionValidation';
+import { errorMessage } from '../../../utils/apiError';
 
 interface PaymentMethodStepProps {
   plan: CustomerService.Plan;
@@ -101,8 +102,8 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({ plan: _pla
       }
 
       onComplete({ paymentMethodRequest: paymentData });
-    } catch (err: any) {
-      setBackendError(err.message || 'Failed to validate payment method');
+    } catch (err) {
+      setBackendError(errorMessage(err) || 'Failed to validate payment method');
     } finally {
       setLoading(false);
     }

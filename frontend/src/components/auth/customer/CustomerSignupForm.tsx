@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FlushedInput, FlushedPasswordField, LoginButton } from '../shared/FormFields';
 import { authService } from '../../../services/auth/authService';
 import { useNavigate } from 'react-router-dom';
+import { asApiError, errorMessage } from '../../../utils/apiError';
 
 export const CustomerSignupForm: React.FC<{ onSwitchToLogin: () => void }> = ({ onSwitchToLogin }) => {
   const [fullName, setFullName] = useState('');
@@ -31,11 +32,12 @@ export const CustomerSignupForm: React.FC<{ onSwitchToLogin: () => void }> = ({ 
     try {
       await authService.customerRegister({ fullName, email, password });
       navigate('/login');
-    } catch (err: any) {
-      if (err.validationErrors) {
-        setFieldErrors(err.validationErrors);
+    } catch (err) {
+      const fieldErrors = asApiError(err).validationErrors;
+      if (fieldErrors) {
+        setFieldErrors(fieldErrors);
       }
-      setError(err.message || 'Registration failed');
+      setError(errorMessage(err) || 'Registration failed');
     } finally {
       setLoading(false);
     }

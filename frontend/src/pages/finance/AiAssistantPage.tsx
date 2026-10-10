@@ -79,13 +79,16 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
 
 export const AiAssistantPage: React.FC = () => {
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [provider, setProvider] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    aiService.getStatus().then((s) => setEnabled(s.assistantEnabled)).catch(() => setEnabled(false));
+    aiService.getStatus()
+      .then((s) => { setEnabled(s.assistantEnabled); setProvider(s.provider); })
+      .catch(() => setEnabled(false));
   }, []);
 
   useEffect(() => {
@@ -119,7 +122,7 @@ export const AiAssistantPage: React.FC = () => {
           <Bot size={36} style={{ marginBottom: '12px', color: '#9ca3af' }} />
           <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>The AI assistant is not set up yet</h3>
           <p style={{ margin: 0 }}>
-            Set the <code>ANTHROPIC_API_KEY</code> environment variable on the backend and restart it to turn the assistant on.
+            Set the <code>GROQ_API_KEY</code> environment variable (free key from console.groq.com) or <code>ANTHROPIC_API_KEY</code> on the backend, then restart it.
           </p>
         </div>
       </>
@@ -128,7 +131,7 @@ export const AiAssistantPage: React.FC = () => {
 
   return (
     <>
-      <PageHeader subtitle="Ask questions about your revenue in plain English. Answers use live data from RecurIQ." />
+      <PageHeader subtitle={`Ask questions about your revenue in plain English. Answers use live data from RecurIQ${provider ? ` · Powered by ${provider}` : ''}.`} />
 
       <div className="data-panel" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 220px)', minHeight: '480px' }}>
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>

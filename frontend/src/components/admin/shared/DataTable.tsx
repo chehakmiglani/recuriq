@@ -14,7 +14,7 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
 }
 
-export function DataTable<T extends Record<string, any>>({ 
+export function DataTable<T extends object>({ 
   columns, 
   data, 
   emptyMessage = 'No data found',
@@ -47,7 +47,7 @@ export function DataTable<T extends Record<string, any>>({
           >
             {columns.map((col) => (
               <td key={col.key}>
-                {col.render ? col.render(row) : row[col.key]}
+                {col.render ? col.render(row) : (row as Record<string, React.ReactNode>)[col.key]}
               </td>
             ))}
           </tr>

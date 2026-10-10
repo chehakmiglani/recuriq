@@ -6,6 +6,7 @@ import { AdminModal } from '../../../components/admin/shared/AdminModal';
 import { FormField } from '../../../components/admin/shared/FormField';
 import { getMeteredComponents, createMetered, updateMetered, toggleMeteredStatus, getAllPlans } from '../../../services/admin/adminService';
 import type { MeteredComponentResponse, PlanResponse } from '../../../services/admin/adminTypes';
+import { errorMessage } from '../../../utils/apiError';
 const emptyForm = { name: '', unitName: 'GB', pricePerUnitMinor: '', freeTierQuantity: '0', planId: '' };
 export const MeteredComponentsPage: React.FC = () => {
   const [components, setComponents] = useState<MeteredComponentResponse[]>([]);
@@ -35,7 +36,7 @@ export const MeteredComponentsPage: React.FC = () => {
       if (editId) await updateMetered(editId, payload);
       else await createMetered(payload);
       setModalOpen(false); load();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(errorMessage(e)); }
     finally { setSaving(false); }
   };
   const handleToggle = async (id: number) => {

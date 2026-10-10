@@ -6,6 +6,7 @@ import { FormField } from '../../../components/admin/shared/FormField';
 import { Package } from 'lucide-react';
 import { getAllProducts, updateProduct, toggleProductStatus } from '../../../services/admin/adminService';
 import type { Product } from '../../../services/admin/adminTypes';
+import { errorMessage } from '../../../utils/apiError';
 export const ProductPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ export const ProductPage: React.FC = () => {
       await updateProduct(editing.id, form);
       setEditing(null);
       load();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(errorMessage(e)); }
     finally { setSaving(false); }
   };
   const handleToggle = async (id: number) => {

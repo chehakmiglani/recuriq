@@ -1,4 +1,9 @@
 import type { DashboardOverview, MRRAnalytics, ARRAnalytics, ChurnMetric, ARPUAnalytics, Refund, RevenueSnapshot, Invoice, Payment } from "../../types/financeTypes";
+import type {
+  ArpuLtvReportResponse, ArrReportResponse, ChurnReportResponse, DashboardResponse,
+  InvoiceDetailResponse, InvoiceRecordResponse, MrrReportResponse, Page, PaymentRecordResponse,
+  RefundCreditResponse, RevenueSnapshotResponse,
+} from './financeApiTypes';
 
 const API_BASE = '/api/finance';
 
@@ -33,7 +38,7 @@ async function financeFetch<T>(endpoint: string, options?: RequestInit): Promise
 
 export const financeService = {
   getDashboardOverview: async (): Promise<DashboardOverview> => {
-    const data = await financeFetch<any>('/dashboard');
+    const data = await financeFetch<DashboardResponse>('/dashboard');
     return {
       mrr: { value: (data.mrrMinor || 0) / 100, trend: 0, trendDirection: 'up' },
       arr: { value: (data.arrMinor || 0) / 100, trend: 0, trendDirection: 'up' },
@@ -43,16 +48,16 @@ export const financeService = {
       activeCustomers: { value: data.activeCustomers || 0, trend: 0, trendDirection: 'up' },
       failedPayments: { value: data.failedPaymentsCount || 0, trend: 0, trendDirection: 'down' },
       refundAmount: { value: (data.refundAmountMinor || 0) / 100, trend: 0, trendDirection: 'up' },
-      revenueByPlan: data.revenueByPlan?.map((p: any) => ({
+      revenueByPlan: data.revenueByPlan?.map((p) => ({
         name: p.planName,
         value: (p.revenueMinor || 0) / 100
       })) || [],
-      revenueByRegion: data.revenueByRegion?.map((r: any) => ({
+      revenueByRegion: data.revenueByRegion?.map((r) => ({
         name: r.region,
         value: (r.revenueMinor || 0) / 100
       })) || [],
       recentActivity: [],
-      revenueTrend: data.revenueTrend?.map((t: any) => ({
+      revenueTrend: data.revenueTrend?.map((t) => ({
         date: t.month,
         value: (t.valueMinor || 0) / 100
       })) || []
@@ -60,14 +65,14 @@ export const financeService = {
   },
 
   getMRRAnalytics: async (): Promise<MRRAnalytics> => {
-    const data = await financeFetch<any>('/reports/mrr');
+    const data = await financeFetch<MrrReportResponse>('/reports/mrr');
     return {
       total: (data.mrrMinor || 0) / 100,
       expansion: (data.expansionMinor || 0) / 100,
       contraction: (data.contractionMinor || 0) / 100,
       newMRR: (data.newMrrMinor || 0) / 100,
       reactivation: (data.reactivationMinor || 0) / 100,
-      history: data.revenueTrend?.map((t: any) => ({
+      history: data.revenueTrend?.map((t) => ({
         date: t.month,
         value: (t.valueMinor || 0) / 100
       })) || []
@@ -75,18 +80,18 @@ export const financeService = {
   },
 
   getARRAnalytics: async (): Promise<ARRAnalytics> => {
-    const data = await financeFetch<any>('/reports/arr');
+    const data = await financeFetch<ArrReportResponse>('/reports/arr');
     return {
       total: (data.arrMinor || 0) / 100,
-      history: data.arrTrend?.map((t: any) => ({
+      history: data.arrTrend?.map((t) => ({
         date: t.month,
         value: (t.valueMinor || 0) / 100
       })) || [],
-      byRegion: data.revenueByRegion?.map((r: any) => ({
+      byRegion: data.revenueByRegion?.map((r) => ({
         region: r.region,
         value: (r.revenueMinor || 0) / 100
       })) || [],
-      byPlan: data.revenueByPlan?.map((p: any) => ({
+      byPlan: data.revenueByPlan?.map((p) => ({
         plan: p.planName,
         value: (p.revenueMinor || 0) / 100
       })) || []
@@ -94,16 +99,16 @@ export const financeService = {
   },
 
   getChurnAnalytics: async (): Promise<ChurnMetric> => {
-    const data = await financeFetch<any>('/reports/churn');
+    const data = await financeFetch<ChurnReportResponse>('/reports/churn');
     return {
       customerChurnRate: data.netChurnPercent || 0,
       revenueChurnRate: data.revenueChurnPercent || 0,
       churnedRevenue: (data.churnedRevenueMinor || 0) / 100,
-      history: data.churnTrend?.map((t: any) => ({
+      history: data.churnTrend?.map((t) => ({
         date: t.month,
         value: t.netChurnPercent || 0
       })) || [],
-      reasons: data.reasons?.map((r: any) => ({
+      reasons: data.reasons?.map((r) => ({
         reason: r.reason,
         count: r.count
       })) || []
@@ -111,12 +116,12 @@ export const financeService = {
   },
 
   getARPUAnalytics: async (): Promise<ARPUAnalytics> => {
-    const data = await financeFetch<any>('/reports/arpu-ltv');
+    const data = await financeFetch<ArpuLtvReportResponse>('/reports/arpu-ltv');
     return {
       arpu: (data.arpuMinor || 0) / 100,
       ltv: (data.ltvMinor || 0) / 100,
       cacLtvRatio: data.cacLtvRatio || 'N/A',
-      history: data.arpuTrend?.map((t: any) => ({
+      history: data.arpuTrend?.map((t) => ({
         date: t.month,
         value: (t.valueMinor || 0) / 100
       })) || []
@@ -124,9 +129,9 @@ export const financeService = {
   },
 
   getInvoices: async (page = 1, limit = 10): Promise<{ data: Invoice[]; total: number }> => {
-    const response = await financeFetch<any>(`/invoices?page=${page - 1}&size=${limit}`);
+    const response = await financeFetch<Page<InvoiceRecordResponse>>(`/invoices?page=${page - 1}&size=${limit}`);
     return {
-      data: response.content?.map((i: any) => ({
+      data: response.content?.map((i) => ({
         id: i.invoiceNumber,
         customerId: String(i.customerId),
         customerName: `Customer ${i.customerId}`,
@@ -142,7 +147,7 @@ export const financeService = {
   getInvoiceDetail: async (invoiceId: string): Promise<Invoice> => {
     // Extract numeric ID from invoice number (e.g., "INV-2026-1001" -> "1001")
     const numericId = invoiceId.split('-').pop() || invoiceId;
-    const response = await financeFetch<any>(`/invoices/${numericId}`);
+    const response = await financeFetch<InvoiceDetailResponse>(`/invoices/${numericId}`);
     return {
       id: response.invoiceNumber,
       customerId: String(response.customerId),
@@ -151,7 +156,7 @@ export const financeService = {
       status: response.status === 'PAID' ? 'Paid' : response.status === 'DRAFT' ? 'Draft' : 'Pending',
       date: response.date,
       dueDate: response.dueDate,
-      lineItems: response.lineItems?.map((item: any) => ({
+      lineItems: response.lineItems?.map((item) => ({
         lineItemId: String(item.lineItemId),
         description: item.description,
         lineType: item.lineType,
@@ -165,9 +170,9 @@ export const financeService = {
   },
 
   getPayments: async (page = 1, limit = 10): Promise<{ data: Payment[]; total: number }> => {
-    const response = await financeFetch<any>(`/payments?page=${page - 1}&size=${limit}`);
+    const response = await financeFetch<Page<PaymentRecordResponse>>(`/payments?page=${page - 1}&size=${limit}`);
     return {
-      data: response.content?.map((p: any) => ({
+      data: response.content?.map((p) => ({
         id: String(p.paymentId),
         invoiceId: p.invoiceNumber,
         customerId: 'N/A',
@@ -181,9 +186,9 @@ export const financeService = {
   },
 
   getCredits: async (page = 1, limit = 10): Promise<{ data: Refund[]; total: number }> => {
-    const response = await financeFetch<any>(`/refunds?page=${page - 1}&size=${limit}`);
+    const response = await financeFetch<Page<RefundCreditResponse>>(`/refunds?page=${page - 1}&size=${limit}`);
     return {
-      data: response.content?.map((r: any) => ({
+      data: response.content?.map((r) => ({
         id: r.refundId,
         paymentId: String(r.paymentId),
         customerId: 'N/A',
@@ -197,9 +202,9 @@ export const financeService = {
   },
 
   getRevenueSnapshots: async (page = 1, limit = 10): Promise<{ data: RevenueSnapshot[]; total: number }> => {
-    const response = await financeFetch<any>(`/snapshots?page=${page - 1}&size=${limit}`);
+    const response = await financeFetch<Page<RevenueSnapshotResponse>>(`/snapshots?page=${page - 1}&size=${limit}`);
     return {
-      data: response.content?.map((s: any, index: number) => ({
+      data: response.content?.map((s, index: number) => ({
         id: `snap-${index}`,
         date: s.date,
         totalRevenue: (s.totalRevenueMinor || 0) / 100,

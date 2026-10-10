@@ -1,5 +1,6 @@
 import type { LoginRequest, RegisterRequest } from './authTypes';
 import type { User } from '../../types/auth.types';
+import type { ApiError } from '../../utils/apiError';
 
 // API base URL — proxied to backend by both CRA (setupProxy.js) and Vite (vite.config.ts)
 const API_BASE_URL = '/api';
@@ -51,7 +52,7 @@ export const fetchWithSession = async (endpoint: string, options: RequestInit = 
     try {
       // If the backend sent our beautiful ErrorInfo JSON object, extract just the message!
       const errorJson = JSON.parse(errorText);
-      const customError: any = new Error(errorJson.message || 'Authentication API error');
+      const customError: ApiError = new Error(errorJson.message || 'Authentication API error');
       customError.status = response.status;
       
       // If GlobalExceptionHandler attached field-level constraints, pass them forward
@@ -62,7 +63,7 @@ export const fetchWithSession = async (endpoint: string, options: RequestInit = 
     } catch(e) {
       // If it isn't JSON, just throw the raw error message so we still catch it
       if (e instanceof SyntaxError) {
-        const rawError: any = new Error(errorText || 'Authentication API error');
+        const rawError: ApiError = new Error(errorText || 'Authentication API error');
         rawError.status = response.status;
         throw rawError;
       }

@@ -68,7 +68,7 @@ export const AiInsightsCard: React.FC<{ insights: Insights; onRefresh: (next: In
             Ask the AI analyst <ArrowRight size={14} />
           </Link>
           {!insights.aiBriefing && (
-            <span style={{ color: '#64748b' }}>Set <code>ANTHROPIC_API_KEY</code> for a written AI briefing.</span>
+            <span style={{ color: '#64748b' }}>Set <code>GROQ_API_KEY</code> (free) for a written AI briefing.</span>
           )}
         </div>
       </div>

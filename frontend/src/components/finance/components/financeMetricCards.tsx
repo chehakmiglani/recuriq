@@ -62,7 +62,7 @@ export const FinanceMetricCard: React.FC<Props> = ({ title, value, icon, prefix 
             color: '#0f766e',
           }}
         >
-          {React.cloneElement(icon as React.ReactElement<any>, { size: 18 })}
+          {React.cloneElement(icon as React.ReactElement<{ size?: number }>, { size: 18 })}
         </div>
       </div>
       <div

@@ -1,4 +1,5 @@
 import { fetchWithSession } from '../auth/authService';
+import { asApiError } from '../../utils/apiError';
 // Relative URL - proxied through CRA dev server
 const API_BASE = '/customer';
 // ==================== TYPES ====================
@@ -232,8 +233,8 @@ export const getCurrentSubscription = async (): Promise<Subscription | null> => 
   try {
     const response = await fetchWithSession(`${API_BASE}/subscription`);
     return response.json();
-  } catch (error: any) {
-    if (error.status === 404) return null;
+  } catch (error) {
+    if (asApiError(error).status === 404) return null;
     throw error;
   }
 };
@@ -296,8 +297,8 @@ export const getPendingCancellationRequest = async (): Promise<CancellationReque
     const text = await response.text();
     if (!text) return null;
     return JSON.parse(text);
-  } catch (error: any) {
-    if (error.status === 404 || error.status === 204) return null;
+  } catch (error) {
+    if (asApiError(error).status === 404 || asApiError(error).status === 204) return null;
     throw error;
   }
 };
@@ -560,7 +561,8 @@ export const getUnreadNotifications = async (): Promise<Notification[]> => {
   const response = await fetchWithSession('/notifications/me');
   if (!response.ok) throw new Error('Failed to fetch notifications');
   const data = await response.json();
-  return data.map((item: any) => ({
+  // The API names the id notificationId; the UI calls it id
+  return (data as Array<Omit<Notification, 'id'> & { notificationId: number }>).map((item) => ({
     id: item.notificationId,
     type: item.type,
     subject: item.subject,

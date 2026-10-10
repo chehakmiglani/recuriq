@@ -6,6 +6,7 @@ import { FormField } from '../../../components/admin/shared/FormField';
 import { ConfirmDialog } from '../../../components/shared/ConfirmDialog';
 import { getTaxRates, createTaxRate, updateTaxRate, deleteTaxRate } from '../../../services/admin/adminService';
 import type { TaxRate } from '../../../services/admin/adminTypes';
+import { errorMessage } from '../../../utils/apiError';
 
 const emptyForm = { name: '', region: '', ratePercent: '', inclusive: 'false', effectiveFrom: new Date().toISOString().split('T')[0] };
 
@@ -52,7 +53,7 @@ export const TaxRatesPage: React.FC = () => {
       if (editId) await updateTaxRate(editId, payload);
       else await createTaxRate(payload);
       setModalOpen(false); load();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(errorMessage(e)); }
     finally { setSaving(false); }
   };
 

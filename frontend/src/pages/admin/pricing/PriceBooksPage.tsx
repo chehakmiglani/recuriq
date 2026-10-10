@@ -6,6 +6,7 @@ import { FormField } from '../../../components/admin/shared/FormField';
 import { ConfirmDialog } from '../../../components/shared/ConfirmDialog';
 import { getPriceBooks, createPriceBook, updatePriceBook, archivePriceBook, getAllPlans } from '../../../services/admin/adminService';
 import type { PriceBookResponse, PlanResponse } from '../../../services/admin/adminTypes';
+import { errorMessage } from '../../../utils/apiError';
 const formatPrice = (minor: number, cur: string) => {
   const amt = minor / 100;
   if (cur === 'INR') return `₹${amt.toLocaleString('en-IN')}`;
@@ -57,7 +58,7 @@ export const PriceBooksPage: React.FC = () => {
       if (editId) await updatePriceBook(editId, payload);
       else await createPriceBook(payload);
       setModalOpen(false); load();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(errorMessage(e)); }
     finally { setSaving(false); }
   };
   const handleDelete = (id: number) => {
@@ -72,8 +73,8 @@ export const PriceBooksPage: React.FC = () => {
         try {
           await archivePriceBook(id);
           load();
-        } catch (e: any) {
-          alert(e.message || 'Delete failed');
+        } catch (e) {
+          alert(errorMessage(e) || 'Delete failed');
         }
       }
     });

@@ -4,6 +4,7 @@ import { ArrowLeft, Check, Loader2 } from 'lucide-react';
 import * as CustomerService from '../../services/customer/customerService';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/LandingPage.css'; // Reuse the excellent UI from Landing Page
+import { errorMessage } from '../../utils/apiError';
 type Region = 'IN' | 'US' | 'GB';
 interface RegionConfig {
   code: Region;
@@ -37,8 +38,8 @@ export const PlansPage: React.FC = () => {
         setLoading(true);
         const allPlans = await CustomerService.getAllPlans(selectedRegion);
         setPlans(allPlans);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load plans');
+      } catch (err) {
+        setError(errorMessage(err) || 'Failed to load plans');
       } finally {
         setLoading(false);
       }

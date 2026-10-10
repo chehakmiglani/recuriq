@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import './PaymentMethodsPage.css';
+import { errorMessage } from '../../utils/apiError';
 
 export const PaymentMethodsPage: React.FC = () => {
   const [paymentMethods, setPaymentMethods] = useState<CustomerService.PaymentMethod[]>([]);
@@ -45,10 +46,6 @@ export const PaymentMethodsPage: React.FC = () => {
     setConfirmDialog(prev => ({ ...prev, isOpen: false }));
   };
 
-  useEffect(() => {
-    loadPaymentMethods();
-  }, []);
-
   const loadPaymentMethods = async () => {
     try {
       const methods = await CustomerService.getPaymentMethods();
@@ -59,6 +56,11 @@ export const PaymentMethodsPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
+    loadPaymentMethods();
+  }, []);
 
   const handleAddPaymentMethod = async () => {
     const data: Parameters<typeof CustomerService.addPaymentMethod>[0] = {
@@ -89,7 +91,7 @@ export const PaymentMethodsPage: React.FC = () => {
       await loadPaymentMethods();
       setShowAddModal(false);
       resetForm();
-    } catch (error) {
+    } catch {
       alert('Failed to add payment method');
     } finally {
       setSaving(false);
@@ -100,7 +102,7 @@ export const PaymentMethodsPage: React.FC = () => {
     try {
       await CustomerService.setDefaultPaymentMethod(id);
       await loadPaymentMethods();
-    } catch (error) {
+    } catch {
       alert('Failed to set default payment method');
     }
   };
@@ -117,8 +119,8 @@ export const PaymentMethodsPage: React.FC = () => {
         try {
           await CustomerService.deletePaymentMethod(id);
           await loadPaymentMethods();
-        } catch (error: any) {
-          alert(error.message || 'Failed to delete payment method');
+        } catch (error) {
+          alert(errorMessage(error) || 'Failed to delete payment method');
         }
       }
     });

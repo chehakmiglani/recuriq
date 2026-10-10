@@ -3,7 +3,7 @@ import { PageHeader } from '../../components/admin/shared/PageHeader';
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { type Column, FinanceDataTable } from '../../components/finance/components/finanaceDataTable';
 import { financeService } from '../../services/finance/financeService';
-import type { Invoice } from '../../types/financeTypes';
+import type { Invoice, InvoiceLineItem } from '../../types/financeTypes';
 import { X, Receipt, FileText } from 'lucide-react';
 
 export const InvoicesPage: React.FC = () => {
@@ -66,19 +66,19 @@ export const InvoicesPage: React.FC = () => {
     }, 300); // Wait for closing animation
   };
 
-  const calculateSubtotal = (items: any[]) => {
+  const calculateSubtotal = (items: InvoiceLineItem[]) => {
     return items
       .filter((item) => item.lineType !== 'TAX' && item.lineType !== 'CREDIT')
       .reduce((sum, item) => sum + item.amountMinor / 100, 0);
   };
 
-  const calculateTax = (items: any[]) => {
+  const calculateTax = (items: InvoiceLineItem[]) => {
     return items
       .filter((item) => item.lineType === 'TAX')
       .reduce((sum, item) => sum + item.amountMinor / 100, 0);
   };
 
-  const calculateCredit = (items: any[]) => {
+  const calculateCredit = (items: InvoiceLineItem[]) => {
     return items
       .filter((item) => item.lineType === 'CREDIT')
       .reduce((sum, item) => sum + item.amountMinor / 100, 0);

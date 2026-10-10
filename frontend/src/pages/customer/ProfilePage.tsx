@@ -20,10 +20,6 @@ export const ProfilePage: React.FC = () => {
   const [saved, setSaved] = useState(false);
   const [formData, setFormData] = useState<Partial<CustomerService.CustomerProfile>>({});
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
   const loadProfile = async () => {
     try {
       const data = await CustomerService.getCustomerProfile();
@@ -42,6 +38,11 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
+    loadProfile();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -52,7 +53,7 @@ export const ProfilePage: React.FC = () => {
       setSaved(true);
       await loadProfile();
       setTimeout(() => setSaved(false), 3000);
-    } catch (error) {
+    } catch {
       alert('Failed to update profile');
     } finally {
       setSaving(false);

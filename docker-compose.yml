@@ -1,7 +1,7 @@
 # Runs the whole stack: MySQL with seed data, the Spring Boot API and the React app.
 #   docker compose up --build
 # then open http://localhost:3000
-# To turn on the AI assistant, set ANTHROPIC_API_KEY in your shell (or a .env file) first.
+# To turn on the AI analyst, copy .env.example to .env and add a free GROQ_API_KEY first.
 
 services:
   db:
@@ -23,8 +23,10 @@ services:
       DB_URL: jdbc:mysql://db:3306/subscription_billing
       DB_USERNAME: root
       DB_PASSWORD: root
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      RECURIQ_AI_MODEL: ${RECURIQ_AI_MODEL:-claude-opus-5-5}
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-opus-5-5}
     depends_on:
       db:
         condition: service_healthy

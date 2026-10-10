@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, CheckCircle, Shield, Tag, X, Ticket } from 'lucide-react';
 import * as CustomerService from '../../../services/customer/customerService';
+import { errorMessage } from '../../../utils/apiError';
 
 interface MockPaymentStepProps {
   plan: CustomerService.Plan;
   customerId: number;
   paymentMethodRequest: CustomerService.PaymentMethodRequest;
-  onComplete: (data: any) => void;
+  onComplete: (data: { subscriptionId: number }) => void;
 }
 
 export const MockPaymentStep: React.FC<MockPaymentStepProps> = ({ 
@@ -24,6 +25,8 @@ export const MockPaymentStep: React.FC<MockPaymentStepProps> = ({
   const TAX_RATE_PERCENT = getTaxRate();
 
   const [loading, setLoading] = useState(false);
+  // Read the clock once so the trial end date stays stable across renders
+  const [now] = useState(() => Date.now());
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   
@@ -85,8 +88,8 @@ export const MockPaymentStep: React.FC<MockPaymentStepProps> = ({
       const coupon = await CustomerService.validateCoupon(codeToApply);
       setAppliedCoupon(coupon);
       setCouponCode(coupon.code);
-    } catch (err: any) {
-      setCouponError(err.message || 'Invalid coupon code');
+    } catch (err) {
+      setCouponError(errorMessage(err) || 'Invalid coupon code');
       setAppliedCoupon(null);
     } finally {
       setCouponLoading(false);
@@ -115,8 +118,8 @@ export const MockPaymentStep: React.FC<MockPaymentStepProps> = ({
       setTimeout(() => {
         onComplete({ subscriptionId: result.subscriptionId });
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'Payment failed');
+    } catch (err) {
+      setError(errorMessage(err) || 'Payment failed');
     } finally {
       setLoading(false);
     }
@@ -148,7 +151,7 @@ export const MockPaymentStep: React.FC<MockPaymentStepProps> = ({
           </h2>
           <p style={{ color: '#6B7280', fontSize: '16px', lineHeight: '1.6' }}>
             {isTrial 
-              ? `Your ${plan.trialDays}-day free trial is now active. Your first charge of ${formatPrice(totalMinor, plan.defaultCurrency)} will occur on ${new Date(Date.now() + plan.trialDays * 24 * 60 * 60 * 1000).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.` 
+              ? `Your ${plan.trialDays}-day free trial is now active. Your first charge of ${formatPrice(totalMinor, plan.defaultCurrency)} will occur on ${new Date(now + plan.trialDays * 24 * 60 * 60 * 1000).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.` 
               : 'Your subscription is now active. Redirecting you home...'}
           </p>
         </div>

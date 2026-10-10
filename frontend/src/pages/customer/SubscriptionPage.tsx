@@ -23,6 +23,8 @@ export const SubscriptionPage: React.FC = () => {
   const navigate = useNavigate();
   const { refreshUserStatus } = useAuthContext();
   const [subscription, setSubscription] = useState<CustomerService.Subscription | null>(null);
+  // Read the clock once so date limits stay stable across renders
+  const [now] = useState(() => Date.now());
   const [availablePlans, setAvailablePlans] = useState<CustomerService.Plan[]>([]);
   const [availableAddOns, setAvailableAddOns] = useState<CustomerService.AddOn[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,10 +72,6 @@ export const SubscriptionPage: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
     try {
       const [sub, plans, addons, cancelReq] = await Promise.all([
@@ -92,6 +90,11 @@ export const SubscriptionPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
+    loadData();
+  }, []);
 
   const formatAmount = (amount: number, currency: string) => {
     const locale = currency === 'USD' ? 'en-US' : currency === 'GBP' ? 'en-GB' : 'en-IN';
@@ -156,7 +159,7 @@ export const SubscriptionPage: React.FC = () => {
           loadData();
         }
       });
-    } catch (error) {
+    } catch {
       showAlert('Error', 'Failed to submit cancellation request.');
     } finally {
       setActionLoading(false);
@@ -184,7 +187,7 @@ export const SubscriptionPage: React.FC = () => {
               loadData();
             }
           });
-        } catch (error) {
+        } catch {
           showAlert('Error', 'Failed to withdraw cancellation request.');
         } finally {
           setActionLoading(false);
@@ -210,7 +213,7 @@ export const SubscriptionPage: React.FC = () => {
       await CustomerService.pauseSubscription({ pausedTo: pauseDate });
       await loadData();
       setShowPauseModal(false);
-    } catch (error) {
+    } catch {
       showAlert('Error', 'Failed to pause subscription.');
     } finally {
       setActionLoading(false);
@@ -222,7 +225,7 @@ export const SubscriptionPage: React.FC = () => {
     try {
       await CustomerService.resumeSubscription();
       await loadData();
-    } catch (error) {
+    } catch {
       showAlert('Error', 'Failed to resume subscription.');
     } finally {
       setActionLoading(false);
@@ -234,7 +237,7 @@ export const SubscriptionPage: React.FC = () => {
     try {
       await CustomerService.addAddOn(addonId);
       await loadData();
-    } catch (error) {
+    } catch {
       showAlert('Error', 'Failed to add add-on.');
     } finally {
       setActionLoading(false);
@@ -254,7 +257,7 @@ export const SubscriptionPage: React.FC = () => {
         try {
           await CustomerService.removeAddOn(addonId);
           await loadData();
-        } catch (error) {
+        } catch {
           showAlert('Error', 'Failed to remove add-on.');
         } finally {
           setActionLoading(false);
@@ -273,7 +276,7 @@ export const SubscriptionPage: React.FC = () => {
       case 'past_due':
         return '#f59e0b';
       case 'canceled':
-      case 'canceled':
+      case 'cancelled':
         return '#5b4fff';
       default:
         return '#6b7280';
@@ -655,8 +658,8 @@ export const SubscriptionPage: React.FC = () => {
               type="date"
               value={pauseDate}
               onChange={(e) => setPauseDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
-              max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+              min={new Date(now).toISOString().split('T')[0]}
+              max={new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
               className="date-input"
             />
             <div className="modal-actions">

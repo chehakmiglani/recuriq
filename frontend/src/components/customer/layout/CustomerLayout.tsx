@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Link, NavLink, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuthContext } from '../../../context/AuthContext';
 import { useCustomerContext } from '../../../context/CustomerContext';
@@ -40,7 +40,7 @@ export const CustomerLayout: React.FC = () => {
   const { isCustomer, loading: customerLoading } = useCustomerContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<NavItem[]>([]);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [notifications, setNotifications] = useState<CustomerService.Notification[]>([]);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,17 +65,13 @@ export const CustomerLayout: React.FC = () => {
     }
   };
 
-  // Update search results
-  useEffect(() => {
-    if (searchQuery.trim().length > 0) {
-      const filtered = allNavItems.filter(item =>
-        item.label.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (!item.requiresCustomer || isCustomer === true)
-      );
-      setSearchResults(filtered);
-    } else {
-      setSearchResults([]);
-    }
+  // Nav items matching the search box
+  const searchResults = useMemo(() => {
+    if (searchQuery.trim().length === 0) return [];
+    return allNavItems.filter(item =>
+      item.label.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (!item.requiresCustomer || isCustomer === true)
+    );
   }, [searchQuery, isCustomer]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -83,14 +79,14 @@ export const CustomerLayout: React.FC = () => {
     if (searchResults.length > 0) {
       navigate(searchResults[0].path);
       setSearchQuery('');
-      setSearchResults([]);
+      setSearchOpen(false);
     }
   };
 
   const handleSelectResult = (path: string) => {
     navigate(path);
     setSearchQuery('');
-    setSearchResults([]);
+    setSearchOpen(false);
   };
 
   // Close dropdowns when clicking outside
@@ -100,7 +96,7 @@ export const CustomerLayout: React.FC = () => {
         setDropdownOpen(false);
       }
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setSearchResults([]);
+        setSearchOpen(false);
       }
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
         setNotificationsOpen(false);
@@ -314,7 +310,7 @@ export const CustomerLayout: React.FC = () => {
                 type="text"
                 placeholder="Quick Search..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
                 style={{
                   width: '100%',
                   background: '#f8fafc',
@@ -327,7 +323,7 @@ export const CustomerLayout: React.FC = () => {
                 }}
               />
               {/* Search Results Dropdown */}
-              {searchResults.length > 0 && (
+              {searchOpen && searchResults.length > 0 && (
                 <div style={{
                   position: 'absolute',
                   top: 'calc(100% + 8px)',
@@ -428,7 +424,9 @@ export const CustomerLayout: React.FC = () => {
                           try {
                             await CustomerService.markAllNotificationsAsRead();
                             setNotifications([]);
-                          } catch (e) { }
+                          } catch {
+                            // Keep the list as is; the next refresh will retry
+                          }
                         }}
                         style={{ background: 'none', border: 'none', fontSize: '12px', color: '#5b4fff', cursor: 'pointer', fontWeight: 600 }}
                       >

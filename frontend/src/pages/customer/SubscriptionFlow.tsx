@@ -6,6 +6,7 @@ import { PaymentMethodStep } from '../../components/customer/subscription/Paymen
 import { MockPaymentStep } from '../../components/customer/subscription/MockPaymentStep';
 import * as CustomerService from '../../services/customer/customerService';
 import { useAuthContext } from '../../context/AuthContext';
+import { errorMessage } from '../../utils/apiError';
 
 export const SubscriptionFlow: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -32,7 +33,7 @@ export const SubscriptionFlow: React.FC = () => {
           try {
             const profile = await CustomerService.getCustomerProfile();
             resolvedRegion = profile.country;
-          } catch (e) {
+          } catch {
             // ignore
           }
         } else {
@@ -43,7 +44,7 @@ export const SubscriptionFlow: React.FC = () => {
               resolvedRegion = profile.country;
               setCustomerId(profile.customerId);
             }
-          } catch (e) {
+          } catch {
             // ignore
           }
         }
@@ -56,8 +57,8 @@ export const SubscriptionFlow: React.FC = () => {
       } else {
         setError('Plan not found');
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load plan');
+    } catch (err) {
+      setError(errorMessage(err) || 'Failed to load plan');
     } finally {
       setLoading(false);
     }
@@ -74,18 +75,21 @@ export const SubscriptionFlow: React.FC = () => {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads data on mount; state only changes once the request settles
     loadPlan();
   }, [isAuthenticated, planId, navigate, loadPlan]);
 
-  const handleStepComplete = (step: number, data: any) => {
+  // Step 1 sends the new customer, step 2 the payment method, step 3 the created subscription
+  type StepData = { customerId?: number; country?: string; paymentMethodRequest?: CustomerService.PaymentMethodRequest; subscriptionId?: number };
+  const handleStepComplete = (step: number, data: StepData) => {
     if (step === 1) {
-      setCustomerId(data.customerId);
+      setCustomerId(data.customerId ?? null);
       if (data.country) {
         loadPlan(data.country);
       }
       navigate(`/subscribe?planId=${planId}&step=2`);
     } else if (step === 2) {
-      setPaymentMethodRequest(data.paymentMethodRequest);
+      setPaymentMethodRequest(data.paymentMethodRequest ?? null);
       navigate(`/subscribe?planId=${planId}&step=3`);
     } else if (step === 3) {
       // Refresh user status so Navbar shows "Dashboard"
