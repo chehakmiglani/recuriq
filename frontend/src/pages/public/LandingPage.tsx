@@ -141,13 +141,13 @@ return (
       <div className="sf-hero-carousel-container">
         <div className="sf-hero-carousel">
           <div className="sf-carousel-card left">
-            <img src="\assets\image2.jpg" alt="Cinematic Movie Scene" />
+            <img src="/assets/image2.jpg" alt="A family watching a film together at home" />
           </div>
           <div className="sf-carousel-card center">
-            <img src="\assets\image1.jpg" alt="Family Movie Scene" />
+            <img src="/assets/image1.jpg" alt="Poster for a noir thriller" />
           </div>
           <div className="sf-carousel-card right">
-            <img src="\assets\image3.jpg" alt="Animated Movie Scene" />
+            <img src="/assets/image3.jpg" alt="Scene from an animated fantasy film" />
           </div>
         </div>
       </div>

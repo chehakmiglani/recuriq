@@ -129,7 +129,9 @@ class NotificationControllerTest {
 
 	@Test
 	void testSeedTestData_Success() throws Exception {
-		mockMvc.perform(get("/api/notifications/seed-test-data").with(authentication(auth)))
+		UsernamePasswordAuthenticationToken staff = new UsernamePasswordAuthenticationToken(testUser, null,
+				List.of(new SimpleGrantedAuthority("ROLE_SUPPORT")));
+		mockMvc.perform(get("/api/notifications/seed-test-data").with(authentication(staff)))
 				.andExpect(status().isOk())
 				.andExpect(content().string("Triggered the real notification generation schedulers. Check your database/UI!"));
 

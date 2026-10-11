@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,7 +60,9 @@ public class NotificationController {
 		return ResponseEntity.ok().build();
 	}
 
+	// Staff-only: runs the notification schedulers on demand
 	@GetMapping("/seed-test-data")
+	@PreAuthorize("hasAnyRole('ADMIN', 'SUPPORT')")
 	public ResponseEntity<String> seedTestData() {
 		// Run the actual scheduler logic instantly
 		notificationService.generateRenewalReminders();

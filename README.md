@@ -31,6 +31,8 @@ RecurIQ runs the full billing cycle for subscription businesses: plans, trials, 
   </tr>
 </table>
 
+![StreamFlix home page, the demo customer site that bills through RecurIQ](docs/screenshots/customer-home.jpg)
+
 ## Architecture
 
 ```mermaid
@@ -138,8 +140,14 @@ Open `http://localhost:3000`. MySQL is created and seeded automatically. To turn
 | `ANTHROPIC_API_KEY` | *(unset)* | Uses Claude instead (only when `GROQ_API_KEY` is empty) |
 | `CLAUDE_MODEL` | `claude-opus-5-5` | Claude model |
 | `RECURIQ_AI_PROVIDER` | `auto` | `auto`, `groq` or `anthropic` |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` | Sites allowed to call the API from a browser |
+| `PORT` | `8765` | Port the backend listens on (set by hosts such as Render) |
 
 The easiest way to set these is a `.env` file: copy `.env.example` to `.env` in the project root and fill it in. The backend and Docker Compose both read it, and it is git-ignored so keys are never committed.
+
+## Hosting a live demo
+
+[docs/DEPLOY.md](docs/DEPLOY.md) is a click-by-click guide to putting RecurIQ online for free: the database on Aiven, the backend on Render (`render.yaml`) and the frontend on Vercel (`frontend/vercel.json`). Free backends sleep when idle, so the app shows a "Waking up the server" notice and refreshes itself once the API responds.
 
 ## AI API
 
@@ -159,11 +167,13 @@ The full API is documented in Swagger UI.
 ├── frontend/           React + Vite single-page app (port 3000)
 ├── docs/               Architecture notes, execution flows, test report, screenshots
 ├── docker-compose.yml  MySQL + API + web app
+├── render.yaml         Render blueprint for the hosted backend
 └── .github/workflows/  CI: backend tests and frontend build
 ```
 
 ## Documentation
 
+- [Hosting a free live demo](docs/DEPLOY.md)
 - [Dunning architecture](docs/DUNNING_ARCHITECTURE.md)
 - [Authentication & subscription flow](docs/AUTHENTICATION_AND_SUBSCRIPTION_FLOW.txt)
 - [Test report](docs/Test_Report.md)

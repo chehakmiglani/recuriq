@@ -3,6 +3,7 @@ package com.recuriq.billing.config;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +30,10 @@ import com.recuriq.billing.repository.UserRepository;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+	// Sites allowed to call the API from a browser; set CORS_ALLOWED_ORIGINS when hosting the frontend elsewhere
+	@Value("${recuriq.cors.allowed-origins:http://localhost:3000,http://127.0.0.1:3000}")
+	private List<String> allowedOrigins;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
@@ -38,7 +43,6 @@ public class SecurityConfig {
 						.permitAll().requestMatchers("/api/customer/login", "/api/customer/register").permitAll()
 						.requestMatchers("/api/customer/plans/featured", "/api/customer/plans/all").permitAll()
 						.requestMatchers("/api/customer/coupons", "/api/customer/coupons/validate").permitAll()
-						.requestMatchers("/api/notifications/seed-test-data").permitAll()
 						.requestMatchers("/api/manager/login").permitAll().requestMatchers("/logout").permitAll()
 						.requestMatchers("/api/auth/me", "/api/auth/expired").permitAll().requestMatchers("/")
 						.permitAll().requestMatchers("/api/**").authenticated().anyRequest().authenticated())
@@ -72,7 +76,7 @@ public class SecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
+		configuration.setAllowedOriginPatterns(allowedOrigins);
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With",
 				"X-XSRF-TOKEN", "Access-Control-Request-Method", "Access-Control-Request-Headers"));

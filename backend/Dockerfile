@@ -10,5 +10,7 @@ RUN mvn -q package -DskipTests
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+# Sized for small (512 MB) containers; override JAVA_TOOL_OPTIONS on larger hosts
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k"
 EXPOSE 8765
 ENTRYPOINT ["java", "-jar", "app.jar"]

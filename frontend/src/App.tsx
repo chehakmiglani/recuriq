@@ -54,11 +54,13 @@ import { AuditLogsPage } from './pages/support/AuditLogsPage';
 import { SystemStatusPage } from './pages/support/SystemStatusPage';
 import { PastDueSubscriptionsPage } from './pages/support/PastDueSubscriptionsPage';
 import { CancellationRequestsPage } from './pages/support/CancellationRequestsPage';
+import { ServerWakeNotice } from './components/shared/ServerWakeNotice';
 
 
 function App() {
   return (
     <BrowserRouter>
+      <ServerWakeNotice />
       <AuthProvider>
         <Routes>
           {/* Landing Page - Now inside AuthProvider */}

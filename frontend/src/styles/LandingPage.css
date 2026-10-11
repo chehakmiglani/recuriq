@@ -243,14 +243,13 @@ body::-webkit-scrollbar {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
-/* Curved 3D Poster Carousel Mockup */
+/* Poster fan: three cards, the outer two tilted and peeking out from behind the middle one */
 .sf-hero-carousel-container {
   position: relative;
   z-index: 5;
   margin: 60px auto 0;
-  max-width: 1000px;
-  height: 400px;
-  perspective: 1500px;
+  max-width: 560px;
+  height: 420px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -263,17 +262,16 @@ body::-webkit-scrollbar {
   display: flex;
   justify-content: center;
   align-items: center;
-  transform-style: preserve-3d;
 }
 
 .sf-carousel-card {
   position: absolute;
-  width: 280px;
-  height: 380px;
+  width: 230px;
+  height: 330px;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background-color: #000;
 }
@@ -282,30 +280,63 @@ body::-webkit-scrollbar {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.7;
-  transition: opacity 0.3s;
 }
 
 .sf-carousel-card.center {
   z-index: 3;
-  transform: translateZ(100px) scale(1);
-  width: 320px;
-  height: 440px;
-  box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.6), 0 0 50px rgba(59, 130, 246, 0.3);
-}
-
-.sf-carousel-card.center img {
-  opacity: 1;
+  width: 270px;
+  height: 390px;
+  box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.55), 0 0 50px rgba(59, 130, 246, 0.3);
 }
 
 .sf-carousel-card.left {
   z-index: 2;
-  transform: translateX(-65%) translateZ(-100px) rotateY(25deg) scale(0.9);
+  transform: translateX(-150px) rotate(-6deg);
 }
 
 .sf-carousel-card.right {
   z-index: 2;
-  transform: translateX(65%) translateZ(-100px) rotateY(-25deg) scale(0.9);
+  transform: translateX(150px) rotate(6deg);
+}
+
+.sf-hero-carousel:hover .sf-carousel-card.left {
+  transform: translateX(-165px) rotate(-8deg);
+}
+
+.sf-hero-carousel:hover .sf-carousel-card.right {
+  transform: translateX(165px) rotate(8deg);
+}
+
+/* Wide screens: copy on the left, posters on the right, all above the fold */
+@media (min-width: 1024px) {
+  .sf-hero-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 48px;
+    padding: 72px 40px 88px;
+    text-align: left;
+  }
+
+  .sf-hero-subtitle {
+    margin: 0 0 40px;
+  }
+
+  .sf-hero-actions {
+    justify-content: flex-start;
+    margin-bottom: 0;
+  }
+
+  .sf-hero-carousel-container {
+    margin: 0;
+    height: 460px;
+  }
+
+  .sf-hero-blob {
+    left: 72%;
+    top: 50%;
+    width: 620px;
+  }
 }
 
 /* ========================================
@@ -770,6 +801,41 @@ body::-webkit-scrollbar {
 @media (max-width: 768px) {
   .sf-hero-title {
     font-size: 40px;
+  }
+
+  .sf-hero-section {
+    padding: 72px 20px 56px;
+  }
+
+  .sf-hero-actions {
+    margin-bottom: 0;
+  }
+
+  /* Smaller poster fan that fits a phone screen */
+  .sf-hero-carousel-container {
+    height: 300px;
+    margin-top: 40px;
+  }
+
+  .sf-carousel-card {
+    width: 150px;
+    height: 215px;
+    border-radius: 14px;
+  }
+
+  .sf-carousel-card.center {
+    width: 176px;
+    height: 254px;
+  }
+
+  .sf-carousel-card.left,
+  .sf-hero-carousel:hover .sf-carousel-card.left {
+    transform: translateX(-92px) rotate(-6deg);
+  }
+
+  .sf-carousel-card.right,
+  .sf-hero-carousel:hover .sf-carousel-card.right {
+    transform: translateX(92px) rotate(6deg);
   }
 
   .sf-features-strip {
