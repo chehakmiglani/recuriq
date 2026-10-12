@@ -15,7 +15,16 @@ final class AiErrors {
     }
 
     static CustomException rateLimited() {
-        return new CustomException("The AI assistant is busy. Please try again in a minute.", HttpStatus.TOO_MANY_REQUESTS, "AI_RATE_LIMITED");
+        return rateLimited(0);
+    }
+
+    /** @param waitSeconds how long the provider asked us to wait; 0 when unknown */
+    static CustomException rateLimited(long waitSeconds) {
+        String when = waitSeconds <= 0 ? "in a minute"
+                : waitSeconds < 90 ? "in about " + waitSeconds + " seconds"
+                : "in about " + Math.round(waitSeconds / 60.0) + " minutes";
+        return new CustomException("The AI assistant has reached its usage limit. Please try again " + when + ".",
+                HttpStatus.TOO_MANY_REQUESTS, "AI_RATE_LIMITED");
     }
 
     static CustomException upstream() {

@@ -30,11 +30,14 @@ const TOOL_LABELS: Record<string, string> = {
   get_refunds: 'Refunds',
 };
 
-// Minimal markdown: **bold**, bullet lists and pipe tables, which is all the assistant is asked to produce
+// Minimal markdown: **bold**, *italic*, `code`, bullet lists and pipe tables, which covers what the models produce
 const renderInline = (text: string) =>
-  text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
-  );
+  text.split(/(\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`)/g).map((part, i) => {
+    if (part.length > 4 && part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.length > 2 && part.startsWith('*') && part.endsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>;
+    if (part.length > 2 && part.startsWith('`') && part.endsWith('`')) return <code key={i}>{part.slice(1, -1)}</code>;
+    return part;
+  });
 
 const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
   const lines = text.split('\n');

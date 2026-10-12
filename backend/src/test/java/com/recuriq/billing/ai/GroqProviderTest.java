@@ -28,13 +28,19 @@ class GroqProviderTest {
     private MockRestServiceServer server;
     private AssistantTools tools;
     private GroqProvider provider;
+    private long pausedMillis;
 
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         tools = mock(AssistantTools.class);
-        provider = new GroqProvider(builder, "test-key", tools, new ObjectMapper(), "openai/gpt-oss-120b");
+        provider = new GroqProvider(builder, "test-key", tools, new ObjectMapper(), "openai/gpt-oss-120b") {
+            @Override
+            void pause(long millis) {
+                pausedMillis += millis;   // no real waiting in tests
+            }
+        };
     }
 
     @Test
@@ -117,6 +123,29 @@ class GroqProviderTest {
 
         CustomException e = assertThrows(CustomException.class, () -> provider.ask(List.of(), "x"));
         assertEquals(HttpStatus.TOO_MANY_REQUESTS, e.getStatus());
+        assertEquals(0, pausedMillis);
+    }
+
+    @Test
+    void ask_waitsAndRetriesWhenRateLimitResetsSoon() {
+        server.expect(once(), requestTo(URL)).andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS).header("retry-after", "7.4"));
+        server.expect(once(), requestTo(URL)).andRespond(withSuccess("""
+                {"choices":[{"message":{"role":"assistant","content":"Done."}}]}
+                """, MediaType.APPLICATION_JSON));
+
+        assertEquals("Done.", provider.ask(List.of(), "x").getAnswer());
+        assertEquals(8500, pausedMillis);   // 7.4s rounded up to 8s, plus a small margin
+        server.verify();
+    }
+
+    @Test
+    void ask_reportsWaitTimeWhenRateLimitResetIsFarAway() {
+        server.expect(once(), requestTo(URL)).andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS).header("retry-after", "600"));
+
+        CustomException e = assertThrows(CustomException.class, () -> provider.ask(List.of(), "x"));
+        assertTrue(e.getMessage().contains("10 minutes"), e.getMessage());
+        assertEquals(0, pausedMillis);
+        server.verify();
     }
 
     @Test

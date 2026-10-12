@@ -31,6 +31,8 @@ RecurIQ runs the full billing cycle for subscription businesses: plans, trials, 
   </tr>
 </table>
 
+![AI analyst answering a question and a follow-up, with the data sources it used](docs/screenshots/ai-assistant.jpg)
+
 ![StreamFlix home page, the demo customer site that bills through RecurIQ](docs/screenshots/customer-home.jpg)
 
 ## Architecture
@@ -87,6 +89,10 @@ Both providers share the same tools and prompts behind one `LlmProvider` interfa
 | Customer for over a year / consistent on-time payments | −10 each |
 
 Scores of 60 and above are **High** risk, 30–59 are **Medium**. The forecast fits a least-squares trend line through the last six months of MRR snapshots.
+
+**Keeping the numbers right.** Language models are unreliable at arithmetic, so the backend does it for them: every amount is converted from paise to rupees before the model sees it, future-dated snapshot rows are dropped, and trend data is labelled as not comparable with live figures. In testing, asking the model to divide by 100 itself produced a wrong ARR figure; after this change every figure matched the database.
+
+**Free-tier limits.** Groq's free plan allows about 8,000 tokens a minute for the default model, and a question uses roughly 2,500 to 3,500. When the limit is hit the backend waits and retries automatically if the reset is under 20 seconds away, and otherwise tells the user how long to wait.
 
 Without an API key, the analyst page explains how to turn it on, the briefing falls back to a rule-based summary, and everything else works normally.
 

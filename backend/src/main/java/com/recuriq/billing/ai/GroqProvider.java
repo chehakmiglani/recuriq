@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
@@ -29,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GroqProvider implements LlmProvider {
 
     public static final String BASE_URL = "https://api.groq.com/openai/v1";
+    static final long MAX_RATE_LIMIT_WAIT_SECONDS = 20;
 
     private final RestClient http;
     private final AssistantTools tools;
@@ -78,7 +78,7 @@ public class GroqProvider implements LlmProvider {
             body.put("tools", toolDefinitions);
             body.put("tool_choice", "auto");
             body.put("temperature", 0.2);
-            body.put("max_completion_tokens", 4096);
+            body.put("max_completion_tokens", 2000);
 
             JsonNode reply = send(body).path("choices").path(0).path("message");
             JsonNode calls = reply.path("tool_calls");
@@ -127,22 +127,48 @@ public class GroqProvider implements LlmProvider {
     }
 
     private JsonNode send(Map<String, Object> body) {
-        try {
-            return post(body);
-        } catch (HttpStatusCodeException e) {
-            // Open models occasionally emit a malformed tool call; one retry usually fixes it
-            if (e.getStatusCode().value() == 400 && e.getResponseBodyAsString().contains("tool_use_failed")) {
-                log.info("Groq returned tool_use_failed, retrying once");
-                try {
-                    return post(body);
-                } catch (HttpStatusCodeException retry) {
-                    throw mapError(retry.getStatusCode(), retry.getResponseBodyAsString());
+        boolean retriedToolCall = false;
+        boolean retriedRateLimit = false;
+        while (true) {
+            try {
+                JsonNode response = post(body);
+                JsonNode usage = response.path("usage");
+                log.info("Groq usage: {} prompt tokens ({} cached), {} completion tokens",
+                        usage.path("prompt_tokens").asInt(),
+                        usage.path("prompt_tokens_details").path("cached_tokens").asInt(),
+                        usage.path("completion_tokens").asInt());
+                return response;
+            } catch (HttpStatusCodeException e) {
+                int status = e.getStatusCode().value();
+                String responseBody = e.getResponseBodyAsString();
+                // Open models occasionally emit a malformed tool call; one retry usually fixes it
+                if (status == 400 && responseBody.contains("tool_use_failed") && !retriedToolCall) {
+                    log.info("Groq returned tool_use_failed, retrying once");
+                    retriedToolCall = true;
+                    continue;
                 }
+                if (status == 429) {
+                    long waitSeconds = retryAfterSeconds(e);
+                    // The free tier limits tokens per minute; a short wait is better than failing the question
+                    if (!retriedRateLimit && waitSeconds > 0 && waitSeconds <= MAX_RATE_LIMIT_WAIT_SECONDS) {
+                        log.info("Groq rate limit reached, retrying in {}s", waitSeconds);
+                        retriedRateLimit = true;
+                        pause(waitSeconds * 1000 + 500);
+                        continue;
+                    }
+                    log.warn("Groq rate limit reached (retry after {}s): {}", waitSeconds, responseBody);
+                    throw AiErrors.rateLimited(waitSeconds);
+                }
+                if (status == 401 || status == 403) {
+                    log.error("Groq rejected the API key");
+                    throw AiErrors.badKey();
+                }
+                log.error("Groq API error {}: {}", status, responseBody);
+                throw AiErrors.upstream();
+            } catch (ResourceAccessException e) {
+                log.error("Could not reach Groq", e);
+                throw AiErrors.unreachable();
             }
-            throw mapError(e.getStatusCode(), e.getResponseBodyAsString());
-        } catch (ResourceAccessException e) {
-            log.error("Could not reach Groq", e);
-            throw AiErrors.unreachable();
         }
     }
 
@@ -155,16 +181,26 @@ public class GroqProvider implements LlmProvider {
                 .body(JsonNode.class);
     }
 
-    private RuntimeException mapError(HttpStatusCode status, String responseBody) {
-        if (status.value() == 401 || status.value() == 403) {
-            log.error("Groq rejected the API key");
-            return AiErrors.badKey();
+    /** Seconds Groq asks us to wait, from the retry-after header; 0 when it is missing or unreadable. */
+    private static long retryAfterSeconds(HttpStatusCodeException e) {
+        String header = e.getResponseHeaders() == null ? null : e.getResponseHeaders().getFirst("retry-after");
+        if (header == null) {
+            return 0;
         }
-        if (status.value() == 429) {
-            return AiErrors.rateLimited();
+        try {
+            return (long) Math.ceil(Double.parseDouble(header.trim()));
+        } catch (NumberFormatException ignored) {
+            return 0;
         }
-        log.error("Groq API error {}: {}", status.value(), responseBody);
-        return AiErrors.upstream();
+    }
+
+    /** Separate method so tests can skip the real wait. */
+    void pause(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private String runTool(String name, String arguments) {

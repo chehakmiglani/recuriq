@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.recuriq.billing.ai.AssistantTools;
 import com.recuriq.billing.dto.ai.ChurnRiskSummaryDTO;
 import com.recuriq.billing.dto.ai.InsightsDTO;
 import com.recuriq.billing.dto.finance.FinanceDashboardDTO;
@@ -75,16 +76,8 @@ public class InsightsServiceImpl implements InsightsService {
                 && briefingGeneratedAt.plus(BRIEFING_TTL).isAfter(LocalDateTime.now());
         if (refresh || !fresh) {
             try {
-                Map<String, Object> snapshot = new LinkedHashMap<>();
-                snapshot.put("dashboard", dashboard);
-                snapshot.put("mrrForecastNext3Months", insights.getMrrForecast());
-                snapshot.put("projectedMrrGrowthPercent", insights.getProjectedGrowthPercent());
-                snapshot.put("churnRisk", Map.of(
-                        "highRisk", insights.getHighRisk(),
-                        "mediumRisk", insights.getMediumRisk(),
-                        "monthlyRevenueAtRiskMinor", insights.getMonthlyRevenueAtRiskMinor(),
-                        "topRisks", insights.getTopRisks()));
-                String briefing = aiAssistantService.writeBriefing(objectMapper.writeValueAsString(snapshot));
+                String briefing = aiAssistantService.writeBriefing(objectMapper.writeValueAsString(
+                        AssistantTools.forModel(objectMapper.valueToTree(briefingSnapshot(insights, dashboard)))));
                 if (briefing != null) {
                     cachedBriefing = briefing;
                     briefingGeneratedAt = LocalDateTime.now();
@@ -95,6 +88,37 @@ public class InsightsServiceImpl implements InsightsService {
         }
         insights.setAiBriefing(cachedBriefing);
         insights.setAiBriefingGeneratedAt(briefingGeneratedAt);
+    }
+
+    /**
+     * The figures the briefing is written from. The projection is the trend's growth rate applied
+     * to live MRR, as on the dashboard card; the raw snapshot series is left out because it is on
+     * a different basis from the live figures and models mix the two up.
+     */
+    private static Map<String, Object> briefingSnapshot(InsightsDTO insights, FinanceDashboardDTO dashboard) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("mrrMinor", dashboard.getMrrMinor());
+        snapshot.put("arrMinor", dashboard.getArrMinor());
+        snapshot.put("arpuMinor", dashboard.getArpuMinor());
+        snapshot.put("ltvMinor", dashboard.getLtvMinor());
+        snapshot.put("netChurnPercent", dashboard.getNetChurnPercent());
+        snapshot.put("activeCustomers", dashboard.getActiveCustomers());
+        snapshot.put("failedPaymentsCount", dashboard.getFailedPaymentsCount());
+        snapshot.put("refundAmountMinor", dashboard.getRefundAmountMinor());
+        snapshot.put("mrrByPlan", dashboard.getRevenueByPlan());
+        snapshot.put("mrrByRegion", dashboard.getRevenueByRegion());
+        Double growth = insights.getProjectedGrowthPercent();
+        if (growth != null) {
+            snapshot.put("projectedMrrGrowthPercentOver3Months", growth);
+            snapshot.put("projectedMrrIn3MonthsMinor", Math.round(dashboard.getMrrMinor() * (1 + growth / 100)));
+        }
+        Map<String, Object> churnRisk = new LinkedHashMap<>();
+        churnRisk.put("highRiskCustomers", insights.getHighRisk());
+        churnRisk.put("mediumRiskCustomers", insights.getMediumRisk());
+        churnRisk.put("monthlyRevenueAtRiskMinor", insights.getMonthlyRevenueAtRiskMinor());
+        churnRisk.put("mostAtRisk", insights.getTopRisks());
+        snapshot.put("churnRisk", churnRisk);
+        return snapshot;
     }
 
     /** One point per month (the last snapshot recorded for it), oldest first. */

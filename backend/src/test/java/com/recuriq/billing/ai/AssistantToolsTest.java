@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recuriq.billing.dto.ai.AssistantRequest;
 import com.recuriq.billing.dto.ai.ChurnRiskDTO;
 import com.recuriq.billing.dto.ai.ChurnRiskSummaryDTO;
+import com.recuriq.billing.dto.finance.FinanceDashboardDTO;
+import com.recuriq.billing.dto.finance.MonthlyTrendDTO;
 import com.recuriq.billing.service.ChurnRiskService;
 import com.recuriq.billing.service.RevenueAnalyticsService;
 
@@ -71,6 +73,30 @@ class AssistantToolsTest {
         assertThrows(IllegalArgumentException.class, () -> tools.run("get_invoice_detail", Map.of("invoice_id", "abc")));
         tools.run("get_invoice_detail", Map.of("invoice_id", "12"));
         verify(revenueAnalyticsService).getInvoiceDetailById(12L);
+    }
+
+    @Test
+    void amountsAreConvertedToRupeesAndTrendsLabelled() throws Exception {
+        MonthlyTrendDTO past = new MonthlyTrendDTO();
+        past.setMonth("2026-01");
+        past.setValueMinor(214700);
+        MonthlyTrendDTO future = new MonthlyTrendDTO();
+        future.setMonth("2999-12");
+        future.setValueMinor(999900);
+        when(revenueAnalyticsService.getFinanceDashboard()).thenReturn(FinanceDashboardDTO.builder()
+                .mrrMinor(1445360).arrMinor(17344320).activeCustomers(27)
+                .revenueTrend(List.of(past, future)).build());
+
+        String result = tools.run("get_finance_dashboard", Map.of());
+        var json = objectMapper.readTree(result);
+
+        assertTrue(result.contains("\"mrr\":14453.60"), result);
+        assertTrue(result.contains("\"arr\":173443.20"), result);
+        assertEquals(27, json.get("activeCustomers").asInt());
+        assertFalse(result.contains("Minor"));
+        assertEquals(1, json.get("revenueTrend").size(), "future-dated snapshot months are dropped");
+        assertTrue(result.contains("\"value\":2147.00"), result);
+        assertTrue(json.has("trendNote"));
     }
 
     @Test

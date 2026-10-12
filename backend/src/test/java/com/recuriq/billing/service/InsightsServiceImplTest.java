@@ -8,7 +8,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +29,8 @@ class InsightsServiceImplTest {
     private ChurnRiskService churnRiskService;
     @Mock
     private AiAssistantService aiAssistantService;
-    @Mock
-    private ObjectMapper objectMapper;
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private InsightsServiceImpl insightsService;
@@ -90,6 +92,31 @@ class InsightsServiceImplTest {
         assertEquals(List.of(risky), insights.getTopRisks());
         assertNull(insights.getAiBriefing());
         verify(aiAssistantService, never()).writeBriefing(anyString());
+    }
+
+    @Test
+    void getInsights_withAi_sendsRupeeFiguresAndNoRawTrend() throws Exception {
+        FinanceDashboardDTO dashboard = FinanceDashboardDTO.builder()
+                .mrrMinor(1445360).arrMinor(17344320).activeCustomers(27)
+                .revenueTrend(List.of(trend("2026-08", 1000), trend("2026-09", 1100)))
+                .build();
+        when(revenueAnalyticsService.getFinanceDashboard()).thenReturn(dashboard);
+        when(churnRiskService.getChurnRisk(null)).thenReturn(ChurnRiskSummaryDTO.builder()
+                .mediumRisk(3).monthlyRevenueAtRiskMinor(49900).customers(List.of()).build());
+        when(aiAssistantService.isEnabled()).thenReturn(true);
+        when(aiAssistantService.writeBriefing(anyString())).thenReturn("Revenue is steady.");
+
+        InsightsDTO insights = insightsService.getInsights(false);
+        insightsService.getInsights(false);   // second call should reuse the cached briefing
+
+        assertEquals("Revenue is steady.", insights.getAiBriefing());
+        ArgumentCaptor<String> sent = ArgumentCaptor.forClass(String.class);
+        verify(aiAssistantService, times(1)).writeBriefing(sent.capture());
+        assertTrue(sent.getValue().contains("\"mrr\":14453.60"), sent.getValue());
+        assertTrue(sent.getValue().contains("\"arr\":173443.20"), sent.getValue());
+        assertTrue(sent.getValue().contains("\"monthlyRevenueAtRisk\":499.00"), sent.getValue());
+        assertFalse(sent.getValue().contains("Minor"), "amounts must already be in rupees");
+        assertFalse(sent.getValue().contains("revenueTrend"), "raw snapshot series must not be sent");
     }
 
     @Test
