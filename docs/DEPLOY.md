@@ -27,21 +27,13 @@ Do the parts in order. Allow about 30 minutes.
    - **Port** (a number such as `12345`)
    - **User** (`avnadmin`)
    - **Password** (click the eye icon to show it)
-6. Load the tables and demo data from your computer. Run these two commands, replacing `HOST` and `PORT`. Each one asks for the password from step 5.
+6. Load the tables and demo data from your computer. In PowerShell, run this with your own `HOST` and `PORT`. It asks for the password from step 5 (nothing shows while you type), then prints `Subscriptions in the database: 42`.
 
-   ```bash
-   mysql -h HOST -P PORT -u avnadmin -p --ssl-mode=REQUIRED -e "source D:/ProjectsDrive/recuriq/backend/src/main/resources/schema.sql"
-   ```
-   ```bash
-   mysql -h HOST -P PORT -u avnadmin -p --ssl-mode=REQUIRED -e "source D:/ProjectsDrive/recuriq/backend/src/main/resources/data.sql"
-   ```
-7. Check it worked. This should print `42`:
-
-   ```bash
-   mysql -h HOST -P PORT -u avnadmin -p --ssl-mode=REQUIRED -e "SELECT COUNT(*) FROM subscription_billing.subscription"
+   ```powershell
+   D:\ProjectsDriveecuriq\scripts\load-demo-db.ps1 -DbHost HOST -Port PORT
    ```
 
-If `mysql` isn't recognised, use the full path: `"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"`.
+   If PowerShell says scripts are disabled, run `Set-ExecutionPolicy -Scope Process Bypass` first, then try again.
 
 ---
 
@@ -104,7 +96,7 @@ Then add the link where people will see it:
 
 ## Good to know
 
-- **The demo logins are public** because they are in this repository. Anyone can sign in, including as admin, and change the demo data. Don't put real information in the demo. To restore the original data, run the two `source` commands from Part 1 again.
+- **The demo logins are public** because they are in this repository. Anyone can sign in, including as admin, and change the demo data. Don't put real information in the demo. To restore the original data, run the `load-demo-db.ps1` command from Part 1 again.
 - **Every push to `main` redeploys** both the backend (Render) and the frontend (Vercel).
 - **Free plans can change.** If one of these services changes its free plan, the same three pieces work on any host that runs a Docker container, a MySQL 8 database and a static site.
 
@@ -114,7 +106,7 @@ Then add the link where people will see it:
 |---|---|---|
 | Render deploy fails with `Communications link failure` | `DB_URL` is wrong | Check host and port, and that it ends with `?sslMode=REQUIRED` |
 | Render deploy fails with `Access denied` | Wrong database user or password | Re-copy them from Aiven into Render's **Environment** tab |
-| Render log says `Unknown database 'subscription_billing'` | Part 1 step 6 was skipped | Run the two `source` commands |
+| Render log says `Unknown database 'subscription_billing'` | Part 1 step 6 was skipped | Run the `load-demo-db.ps1` command |
 | The site shows "Waking up the server" for more than 5 minutes | Vercel is pointing at the wrong backend address | Compare `frontend/vercel.json` with your Render address; check the Render service is **Live** |
 | Pages load but signing in fails | The backend is rejecting your site's address | In Render's **Environment** tab, set `CORS_ALLOWED_ORIGINS` to your exact site address, e.g. `https://recuriq.vercel.app` |
 | A page refresh on `/finance` shows "404" | Vercel's Root Directory isn't `frontend` | Fix it under the Vercel project's **Settings**, then redeploy |
