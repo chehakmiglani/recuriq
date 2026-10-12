@@ -30,7 +30,7 @@ Do the parts in order. Allow about 30 minutes.
 6. Load the tables and demo data from your computer. In PowerShell, run this with your own `HOST` and `PORT`. It asks for the password from step 5 (nothing shows while you type), then prints `Subscriptions in the database: 42`.
 
    ```powershell
-   D:\ProjectsDriveecuriq\scripts\load-demo-db.ps1 -DbHost HOST -Port PORT
+   D:\ProjectsDrive\recuriq\scripts\load-demo-db.ps1 -DbHost HOST -Port PORT
    ```
 
    If PowerShell says scripts are disabled, run `Set-ExecutionPolicy -Scope Process Bypass` first, then try again.
