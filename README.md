@@ -2,6 +2,8 @@
 
 **AI-assisted subscription billing and revenue management.**
 
+**Live demo: <https://recuriq.vercel.app>** (staff portals at [/management/login](https://recuriq.vercel.app/management/login); demo logins are listed in [docs/DEPLOY.md](docs/DEPLOY.md#try-it)). It runs on free hosting, so the first visit can take a minute or two while the server wakes up.
+
 RecurIQ runs the full billing cycle for subscription businesses: plans, trials, proration, invoicing, taxes, coupons, dunning and usage-based billing. It also adds an **AI billing analyst** that answers questions about revenue in plain English, **explainable churn-risk scoring**, and an **MRR forecast**. The demo data belongs to *StreamFlix*, a fictional streaming service that bills its customers through RecurIQ.
 
 [![CI](https://github.com/chehakmiglani/recuriq/actions/workflows/ci.yml/badge.svg)](https://github.com/chehakmiglani/recuriq/actions/workflows/ci.yml)
